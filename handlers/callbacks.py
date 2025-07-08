@@ -11,13 +11,20 @@ def handle_callback(update: Update, context: CallbackContext):
     username = query.from_user.username or query.from_user.full_name or f"user{user_id}"
 
     if data == "join":
-        success = db.add_player(chat_id, user_id, query.from_user.full_name)
-        db.set_username(chat_id, user_id, username)
-        if success:
-            query.answer("You joined the match!")
-            query.edit_message_text("✅ You’ve joined the game.")
-        else:
-            query.answer("Already in the game.")
+    username = query.from_user.username or query.from_user.full_name or f"user{user_id}"
+    success = db.add_player(chat_id, user_id, query.from_user.full_name)
+    db.set_username(chat_id, user_id, username)
+
+    if success:
+        players = db.get_player_list(chat_id)
+        message = "📜 Players Joined:\n"
+        for pid in players:
+            name = db.get_username(pid) or f"user{pid}"
+            message += f"- @{name}\n"
+        query.edit_message_text(message)
+        query.answer("✅You joined the match!")
+    else:
+        query.answer("Already in the game.")
     elif data.startswith("vote_"):
         target_id = int(data.split("_")[1])
         db.cast_vote(chat_id, user_id, target_id)
