@@ -11,19 +11,33 @@ def handle_callback(update: Update, context: CallbackContext):
     username = query.from_user.username or query.from_user.full_name or f"user{user_id}"
 
     if data == "join":
-       username = query.from_user.username or query.from_user.full_name or f"user{user_id}"
-       success = db.add_player(chat_id, user_id, query.from_user.full_name)
-       db.set_username(chat_id, user_id, username)
+    username = query.from_user.username or query.from_user.full_name or f"user{user_id}"
+    success = db.add_player(chat_id, user_id, query.from_user.full_name)
+    db.set_username(chat_id, user_id, username)
 
-       if success:
+     if success:
+        # Update the same message that was originally sent
         players = db.get_player_list(chat_id)
         message = "📜 Players Joined:\n"
         for pid in players:
             name = db.get_username(pid) or f"user{pid}"
             message += f"- @{name}\n"
-        query.edit_message_text(message)
-        query.answer("You joined the match!")
-       else:
+
+        markup = InlineKeyboardMarkup([[InlineKeyboardButton("Join", callback_data="join")]])
+        msg_id = db.get_game_message(chat_id)
+        if msg_id:
+            try:
+                context.bot.edit_message_text(
+                    chat_id=chat_id,
+                    message_id=msg_id,
+                    text=message,
+                    reply_markup=markup
+                )
+            except Exception as e:
+                print("⚠️ Failed to update join list:", e)
+
+         query.answer("You joined the match!")
+      else:
         query.answer("Already in the game.")
         
     elif data.startswith("vote_"):
