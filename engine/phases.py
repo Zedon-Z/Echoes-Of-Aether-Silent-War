@@ -1,9 +1,39 @@
-
 import random
 from storage import database as db
-from engine.roles import assign_roles  # assume this exists
+from engine.roles import assign_roles
 from engine.tasks import assign_task
 from telegram.ext import CallbackContext
+
+twist_counter = {}
+
+def maybe_trigger_plot_twist(chat_id, context: CallbackContext):
+    from random import choice, shuffle
+    count = twist_counter.get(chat_id, 0) + 1
+    twist_counter[chat_id] = count
+
+    if count % 3 != 0:
+        return
+
+    twists = [
+        "Echo Swap! Roles shuffled among players...",
+        "Memory Wipe! All active tasks reset.",
+        "False Prophet! Oracle visions are reversed.",
+        "Emotional Collapse! Everyone loses 1 item.",
+        "Night of Whispers... Votes next round are anonymous."
+    ]
+    twist = choice(twists)
+    context.bot.send_message(chat_id, f"🌪 *Plot Twist!*\n{twist}", parse_mode='Markdown')
+
+    if "Memory Wipe" in twist:
+        for user_id in db.get_alive_players(chat_id):
+            db.abandon_current_task(user_id)
+
+    elif "Echo Swap" in twist:
+        players = list(db.games[chat_id]["players"].keys())
+        roles = [db.games[chat_id]["players"][pid]["role"] for pid in players]
+        shuffle(roles)
+        for pid, new_role in zip(players, roles):
+            db.games[chat_id]["players"][pid]["role"] = new_role
 
 def get_dawn_story():
     dawn_lines = [
@@ -35,9 +65,9 @@ def begin_game(context: CallbackContext):
 
 def start_day_phase(chat_id, context: CallbackContext):
     context.bot.send_message(chat_id, "🌅 *Day Phase Begins.*\nDiscuss and find the impostors.", parse_mode='Markdown')
-    db.set_phase(chat_id, "day")\n    maybe_trigger_plot_twist(chat_id, context)
+    db.set_phase(chat_id, "day")
+    maybe_trigger_plot_twist(chat_id, context)
 
-    # Assign random task to each player
     for user_id in db.get_alive_players(chat_id):
         task_roll = random.choice(["phrase", "protect", "abstain"])
         if task_roll == "phrase":
@@ -47,43 +77,7 @@ def start_day_phase(chat_id, context: CallbackContext):
         elif task_roll == "abstain":
             assign_task(user_id, "Avoid voting for two days.", "no_vote2")
 
-        # DM player (simplified for PTB < v20)
         try:
-            context.bot.send_message(user_id, "🧾 A new task has been assigned to you.
-Use /mytasks to view it.")
+            context.bot.send_message(user_id, "🧾 A new task has been assigned to you.\nUse /mytasks to view it.")
         except Exception as e:
             print(f"Failed to send task to user {user_id}: {e}")
-
-
-# --- Plot Twist Engine ---
-twist_counter = {}
-
-def maybe_trigger_plot_twist(chat_id, context):
-    from random import choice, randint
-    count = twist_counter.get(chat_id, 0) + 1
-    twist_counter[chat_id] = count
-
-    if count % 3 != 0:
-        return  # Only trigger every 3rd round
-
-    twists = [
-        "Echo Swap! Roles shuffled among players...",
-        "Memory Wipe! All active tasks reset.",
-        "False Prophet! Oracle visions are reversed.",
-        "Emotional Collapse! Everyone loses 1 item.",
-        "Night of Whispers... Votes next round are anonymous."
-    ]
-    twist = choice(twists)
-    context.bot.send_message(chat_id, f"🌪 *Plot Twist!*\n{twist}", parse_mode='Markdown')
-
-    if "Memory Wipe" in twist:
-        for user_id in db.get_alive_players(chat_id):
-            db.abandon_current_task(user_id)
-
-    elif "Echo Swap" in twist:
-        from random import shuffle
-        players = list(db.games[chat_id]["players"].keys())
-        roles = [db.games[chat_id]["players"][pid]["role"] for pid in players]
-        shuffle(roles)
-        for pid, new_role in zip(players, roles):
-            db.games[chat_id]["players"][pid]["role"] = new_role
