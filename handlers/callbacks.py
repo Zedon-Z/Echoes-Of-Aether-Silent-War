@@ -8,6 +8,7 @@ def handle_callback(update: Update, context: CallbackContext):
     data = query.data
     user_id = query.from_user.id
     chat_id = query.message.chat_id
+    username = query.from_user.username or query.from_user.full_name or f"user{user_id}"
 
     if data == "join":
         success = db.add_player(chat_id, user_id, query.from_user.full_name)
