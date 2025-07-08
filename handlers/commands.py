@@ -43,12 +43,12 @@ def start_game(update: Update, context: CallbackContext):
     return alert_fn
 
 # Schedule alerts only if enough time exists
-if countdown >= 30:
-    context.job_queue.run_once(countdown_alert(30), countdown - 30, context=chat_id)
-if countdown >= 10:
-    context.job_queue.run_once(countdown_alert(10), countdown - 10, context=chat_id)
-if countdown >= 5:
-    context.job_queue.run_once(countdown_alert(5), countdown - 5, context=chat_id)
+    if countdown >= 30:
+        context.job_queue.run_once(countdown_alert(30), countdown - 30, context=chat_id)
+    if countdown >= 10:
+        context.job_queue.run_once(countdown_alert(10), countdown - 10, context=chat_id)
+    if countdown >= 5:
+        context.job_queue.run_once(countdown_alert(5), countdown - 5, context=chat_id)
     # Join button (static message)
     join_btn = [[InlineKeyboardButton("🔹 Join Game", callback_data="join")]]
     context.bot.send_message(
