@@ -3,6 +3,7 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CallbackContext
 from storage import database as db
 from engine import phases
+from functools import partial
 import time
 
 # Track join message ID to update later
@@ -29,7 +30,7 @@ def start_game(update: Update, context: CallbackContext):
     db.set_game_start_time(chat_id, int(time.time()) + countdown)
 
     # Schedule game to begin after countdown
-    context.job_queue.run_once(phases.begin_game, countdown, context=chat_id)
+    context.job_queue.run_once(partial(phases.begin_game, chat_id=chat_id), countdown)
     # Schedule countdown alerts with emoji
     def countdown_alert(seconds_left):
       def alert_fn(ctx: CallbackContext):
