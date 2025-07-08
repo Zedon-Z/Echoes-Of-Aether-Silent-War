@@ -230,3 +230,11 @@ def get_pending_offers(chat_id, to_user):
         (from_user, item) for (cid, from_user, target), item in pending_offers.items()
         if cid == chat_id and target == to_user
     ]
+# --- Player List Message Tracking ---
+game_messages = {}
+
+def set_game_message(chat_id, message_id):
+    game_messages[chat_id] = message_id
+
+def get_game_message(chat_id):
+    return game_messages.get(chat_id)
