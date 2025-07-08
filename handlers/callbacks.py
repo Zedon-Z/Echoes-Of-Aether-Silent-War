@@ -11,9 +11,9 @@ def handle_callback(update: Update, context: CallbackContext):
     username = query.from_user.username or query.from_user.full_name or f"user{user_id}"
 
     if data == "join":
-    username = query.from_user.username or query.from_user.full_name or f"user{user_id}"
-    success = db.add_player(chat_id, user_id, query.from_user.full_name)
-    db.set_username(chat_id, user_id, username)
+       username = query.from_user.username or query.from_user.full_name or f"user{user_id}"
+       success = db.add_player(chat_id, user_id, query.from_user.full_name)
+       db.set_username(chat_id, user_id, username)
 
      if success:
         # Update the same message that was originally sent
