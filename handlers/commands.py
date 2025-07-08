@@ -20,31 +20,19 @@ def start_game(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
 
     if db.is_game_active(chat_id):
-        update.message.reply_text("⚠️ A game is already running!")
+        update.message.reply_text("⚠️ A game is already active.")
         return
 
-    db.start_new_game(chat_id)
-    countdown = 60
-    db.set_timer(chat_id, countdown)
-    context.job_queue.run_once(phases.begin_game, countdown, context=chat_id)
-    db.set_game_start_time(chat_id, int(time.time()) + countdown)
-
-    # Static join message (does not change)
-    join_btn = [[InlineKeyboardButton("🔹 Join Game", callback_data="join")]]
-    context.bot.send_message(
-        chat_id=chat_id,
-        text="🌀 *Echoes of Aether Begins!*\nClick below to join the match!",
-        reply_markup=InlineKeyboardMarkup(join_btn),
-        parse_mode='Markdown'
+    db.create_game(chat_id)
+    
+    # Create join message with button
+    markup = InlineKeyboardMarkup([[InlineKeyboardButton("Join", callback_data="join")]])
+    msg = update.message.reply_text(
+        "📜 Players Joined:\n(Waiting...)",
+        reply_markup=markup
     )
 
-    # Player list message (will be updated)
-    player_msg = context.bot.send_message(
-        chat_id=chat_id,
-        text="📜 *Players Joined:*\n_(Waiting...)_",
-        parse_mode='Markdown'
-    )
-    join_message_tracker[chat_id] = player_msg.message_id
+    db.set_game_message(chat_id, msg.message_id)
 
 # ----- JOIN GAME -----
 def join_game(update: Update, context: CallbackContext):
