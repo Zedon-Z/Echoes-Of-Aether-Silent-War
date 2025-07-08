@@ -46,18 +46,12 @@ def handle_dm(update: Update, context: CallbackContext):
 
     else:
         update.message.reply_text(
-            "🤖 Unknown command.
-"
-            "Try:
-"
-            "• /mytasks
-"
-            "• /complete_task <code>
-"
-            "• /abandon_task
-"
-            "• /usepower @user
-"
+            "🤖 Unknown command."
+            "Try:"
+            "• /mytasks"
+            "• /complete_task <code>"
+            "• /abandon_task"
+            "• /usepower @user"
             "• /useitem item_name"
         )
 
