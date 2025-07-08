@@ -52,21 +52,30 @@ def get_night_story():
     return random.choice(night_lines)
 
 def begin_game(context: CallbackContext):
-    job = context.job
+    job = getattr(context, "job", None)
     chat_id = job.context if job else None
+
     if not chat_id:
-        print("❌ begin_game: No chat_id context found.")
+        print("❌ [begin_game] No chat_id in job context.")
         return
 
-    if db.is_game_active(chat_id) and not db.has_game_started(chat_id):
-        players = db.get_player_list(chat_id)
-        if len(players) >= 6:
-            db.mark_game_started(chat_id)
-            assign_roles(chat_id, players)
-            context.bot.send_message(chat_id, "🎮 *The game begins!*", parse_mode='Markdown')
-            start_day_phase(chat_id, context)
-        else:
-            context.bot.send_message(chat_id, "❌ Not enough players to begin. Minimum 6 required.")
+    if not db.is_game_active(chat_id):
+        context.bot.send_message(chat_id, "⚠️ Game was cancelled or never started.")
+        return
+
+    if db.has_game_started(chat_id):
+        context.bot.send_message(chat_id, "⚠️ Game has already begun.")
+        return
+
+    players = db.get_player_list(chat_id)
+    if len(players) < 6:
+        context.bot.send_message(chat_id, "❌ Not enough players to begin. Minimum 6 required.")
+        return
+
+    db.mark_game_started(chat_id)
+    assign_roles(chat_id, players)
+    context.bot.send_message(chat_id, "🎮 *The game begins!*", parse_mode='Markdown')
+    start_day_phase(chat_id, context)
 
 def start_day_phase(chat_id, context: CallbackContext):
     context.bot.send_message(chat_id, "🌅 *Day Phase Begins.*\nDiscuss and find the impostors.", parse_mode='Markdown')
