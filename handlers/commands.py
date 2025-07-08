@@ -30,7 +30,24 @@ def start_game(update: Update, context: CallbackContext):
 
     # Schedule game to begin after countdown
     context.job_queue.run_once(phases.begin_game, countdown, context=chat_id)
+    # Schedule countdown alerts with emoji
+    def countdown_alert(seconds_left):
+      def alert_fn(ctx: CallbackContext):
+        emoji = "⏳" if seconds_left > 5 else "🚨"
+        ctx.bot.send_message(
+            chat_id=chat_id,
+            text=f"{emoji} *{seconds_left} seconds left before the game begins!*",
+            parse_mode='Markdown'
+        )
+    return alert_fn
 
+# Schedule alerts only if enough time exists
+if countdown >= 30:
+    context.job_queue.run_once(countdown_alert(30), countdown - 30, context=chat_id)
+if countdown >= 10:
+    context.job_queue.run_once(countdown_alert(10), countdown - 10, context=chat_id)
+if countdown >= 5:
+    context.job_queue.run_once(countdown_alert(5), countdown - 5, context=chat_id)
     # Join button (static message)
     join_btn = [[InlineKeyboardButton("🔹 Join Game", callback_data="join")]]
     context.bot.send_message(
