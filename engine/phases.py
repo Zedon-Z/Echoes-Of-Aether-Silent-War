@@ -52,13 +52,18 @@ def get_night_story():
     return random.choice(night_lines)
 
 def begin_game(context: CallbackContext):
-    chat_id = context.job.context
+    job = context.job
+    chat_id = job.context if job else None
+    if not chat_id:
+        print("❌ begin_game: No chat_id context found.")
+        return
+
     if db.is_game_active(chat_id) and not db.has_game_started(chat_id):
         players = db.get_player_list(chat_id)
         if len(players) >= 6:
             db.mark_game_started(chat_id)
             assign_roles(chat_id, players)
-            context.bot.send_message(chat_id, "🎮 *The game begins!*\n" + get_dawn_story(), parse_mode='Markdown')
+            context.bot.send_message(chat_id, "🎮 *The game begins!*", parse_mode='Markdown')
             start_day_phase(chat_id, context)
         else:
             context.bot.send_message(chat_id, "❌ Not enough players to begin. Minimum 6 required.")
