@@ -51,20 +51,13 @@ def get_night_story():
     ]
     return random.choice(night_lines)
 
-def begin_game(context: CallbackContext):
-    job = getattr(context, "job", None)
-    chat_id = job.context if job else None
-
-    if not chat_id:
-        print("❌ [begin_game] No chat_id in job context.")
-        return
-
+def begin_game(context: CallbackContext, chat_id):
     if not db.is_game_active(chat_id):
         context.bot.send_message(chat_id, "⚠️ Game was cancelled or never started.")
         return
 
     if db.has_game_started(chat_id):
-        context.bot.send_message(chat_id, "⚠️ Game has already begun.")
+        context.bot.send_message(chat_id, "⚠️ Game already started.")
         return
 
     players = db.get_player_list(chat_id)
