@@ -15,7 +15,7 @@ def handle_callback(update: Update, context: CallbackContext):
        success = db.add_player(chat_id, user_id, query.from_user.full_name)
        db.set_username(chat_id, user_id, username)
 
-    if success:
+       if success:
         players = db.get_player_list(chat_id)
         message = "📜 Players Joined:\n"
         for pid in players:
@@ -23,8 +23,9 @@ def handle_callback(update: Update, context: CallbackContext):
             message += f"- @{name}\n"
         query.edit_message_text(message)
         query.answer("You joined the match!")
-    else:
+       else:
         query.answer("Already in the game.")
+        
     elif data.startswith("vote_"):
         target_id = int(data.split("_")[1])
         db.cast_vote(chat_id, user_id, target_id)
