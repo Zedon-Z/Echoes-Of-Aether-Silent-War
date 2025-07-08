@@ -4,6 +4,7 @@
 games = {}
 game_start_times = {}
 timers = {}
+usernames = {}
 
 def is_game_active(chat_id):
     return chat_id in games
@@ -124,7 +125,11 @@ def get_alive_players(chat_id):
         uid for uid, data in games[chat_id]["players"].items()
         if data["alive"]
     ]
-
+def set_username(chat_id, user_id, username):
+    if chat_id not in usernames:
+        usernames[chat_id] = {}
+    usernames[chat_id][user_id] = username
+    
 def get_username(user_id):
     for game in games.values():
         if user_id in game["players"]:
