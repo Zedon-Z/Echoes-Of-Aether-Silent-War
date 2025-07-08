@@ -43,37 +43,30 @@ def join_game(update: Update, context: CallbackContext):
         update.message.reply_text("No game has been started yet.")
         return
 
+    username = user.username or user.full_name or f"user{user.id}"
     success = db.add_player(chat_id, user.id, user.full_name)
+    db.set_username(chat_id, user.id, username)
+
     if not success:
         update.message.reply_text("ℹ️ You're already in the game.")
         return
 
-    # Update the main player list
+    # Build player list
     players = db.get_player_list(chat_id)
-    player_text = "\n".join(f"• {name}" for name in players.values()) or "_Waiting..._"
+    player_text = "\n".join(f"- @{db.get_username(pid) or f'user{pid}'}" for pid in players)
 
-    try:
-        context.bot.edit_message_text(
-            chat_id=chat_id,
-            message_id=join_message_tracker.get(chat_id),
-            text=f"📜 *Players Joined:*\n{player_text}",
-            parse_mode='Markdown'
-        )
-    except Exception as e:
-        print(f"[WARN] Could not update player list message: {e}")
-
-    # Send fresh join button for others (without player list)
-    end_time = db.get_game_start_time(chat_id)
-    seconds_left = max(0, end_time - int(time.time()))
-    time_text = f"⏳ Game starts in *{seconds_left} seconds!*"
-
-    join_btn = [[InlineKeyboardButton("🔹 Join Game", callback_data="join")]]
-    context.bot.send_message(
-        chat_id=chat_id,
-        text=f"{user.full_name} joined!\n\n{time_text}",
-        reply_markup=InlineKeyboardMarkup(join_btn),
-        parse_mode='Markdown'
-    )
+    join_msg_id = db.get_game_message(chat_id)
+    if join_msg_id:
+        markup = InlineKeyboardMarkup([[InlineKeyboardButton("Join", callback_data="join")]])
+        try:
+            context.bot.edit_message_text(
+                chat_id=chat_id,
+                message_id=join_msg_id,
+                text=f"📜 Players Joined:\n{player_text}",
+                reply_markup=markup
+            )
+        except Exception as e:
+            print(f"[WARN] Could not update player list message: {e}")
 
 def extend_time(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
