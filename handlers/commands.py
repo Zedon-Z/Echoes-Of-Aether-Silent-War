@@ -40,7 +40,7 @@ def start_game(update: Update, context: CallbackContext):
             text=f"{emoji} *{seconds_left} seconds left before the game begins!*",
             parse_mode='Markdown'
         )
-    return alert_fn
+        return alert_fn
 
 # Schedule alerts only if enough time exists
     if countdown >= 30:
