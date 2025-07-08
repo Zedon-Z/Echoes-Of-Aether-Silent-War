@@ -11,11 +11,11 @@ def handle_callback(update: Update, context: CallbackContext):
     username = query.from_user.username or query.from_user.full_name or f"user{user_id}"
 
     if data == "join":
-       username = query.from_user.username or query.from_user.full_name or f"user{user_id}"
-       success = db.add_player(chat_id, user_id, query.from_user.full_name)
-       db.set_username(chat_id, user_id, username)
+      username = query.from_user.username or query.from_user.full_name or f"user{user_id}"
+      success = db.add_player(chat_id, user_id, query.from_user.full_name)
+      db.set_username(chat_id, user_id, username)
 
-     if success:
+    if success:
         # Update the same message that was originally sent
         players = db.get_player_list(chat_id)
         message = "📜 Players Joined:\n"
@@ -36,8 +36,8 @@ def handle_callback(update: Update, context: CallbackContext):
             except Exception as e:
                 print("⚠️ Failed to update join list:", e)
 
-         query.answer("You joined the match!")
-      else:
+        query.answer("You joined the match!")
+    else:
         query.answer("Already in the game.")
         
     elif data.startswith("vote_"):
