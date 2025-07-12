@@ -144,6 +144,9 @@ def vote(update: Update, context: CallbackContext):
 
 def force_start(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
+    if db.has_game_started(chat_id):
+        update.message.reply_text("⚠️ The game has already started.")
+        return
     if not db.is_game_active(chat_id):
         update.message.reply_text("❌ No game to start.")
         return
