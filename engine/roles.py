@@ -8,6 +8,12 @@ def assign_roles(chat_id, player_ids):
         "Light Herald", "Ascended", "Saboteur", "Courtesan",
         "Archivist", "Puppetmaster", "Trickster", "Goat"
     ]
+    # ✅ Send role to user
+        context.bot.send_message(
+            chat_id=user_id,
+            text=f"🎭 Your role is *{role}*.",
+            parse_mode="Markdown"
+        )
     random.shuffle(role_pool)
     assigned = {}
 
