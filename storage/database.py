@@ -23,16 +23,23 @@ def set_phase(chat_id, phase):
 def get_phase(chat_id):
     return games[chat_id].get("phase", "day")
 
-def add_player(chat_id, user_id, username):
+def add_player(chat_id, user_id, full_name):
+    if chat_id not in games:
+        return False  # ❌ No game active in this chat
+
     if user_id in games[chat_id]["players"]:
-        return False
+        return False  # Already joined
+
     games[chat_id]["players"][user_id] = {
-        "name": username,
-        "alive": True,
-        "faction": None,
         "role": None,
+        "alive": True,
+        "task": None,
         "inventory": [],
-        "tasks": [],
+        "faction": None,
+        "vote": None,
+        "protected": False,
+        "relics": [],
+        "name": full_name,
     }
     return True
 
