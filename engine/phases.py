@@ -66,7 +66,7 @@ def begin_game(context: CallbackContext, chat_id):
         return
 
     db.mark_game_started(chat_id)
-    assign_roles(chat_id, players)
+    assign_roles(chat_id, players, context)
     context.bot.send_message(chat_id, "🎮 *The game begins!*", parse_mode='Markdown')
     start_day_phase(chat_id, context)
 
