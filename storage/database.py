@@ -114,7 +114,14 @@ def get_tasks(user_id):
         if user_id in game["players"]:
             return game["players"][user_id]["tasks"]
     return []
-
+    
+def get_current_task(user_id):
+    for chat_id in games:
+        player = games[chat_id]["players"].get(user_id)
+        if player and player.get("tasks"):
+            return player["tasks"][-1]  # Returns the most recent task
+    return None
+    
 def complete_task(user_id, task):
     for game in games.values():
         if user_id in game["players"]:
