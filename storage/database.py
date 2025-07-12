@@ -47,6 +47,7 @@ def add_player(chat_id, user_id, full_name):
         "protected": False,
         "relics": [],
         "name": full_name,
+        "tasks": []
     }
     return True
 
