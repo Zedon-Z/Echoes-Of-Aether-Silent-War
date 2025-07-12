@@ -1,19 +1,13 @@
 import random
 from storage import database as db
 
-def assign_roles(chat_id, player_ids):
+def assign_roles(chat_id, player_ids, context):
     role_pool = [
         "Shadeblade", "Oracle", "Succubus", "Tinkerer",
         "Whispersmith", "Blight Whisperer", "Lumen Priest",
         "Light Herald", "Ascended", "Saboteur", "Courtesan",
         "Archivist", "Puppetmaster", "Trickster", "Goat"
     ]
-    # ✅ Send role to user
-        context.bot.send_message(
-            chat_id=user_id,
-            text=f"🎭 Your role is *{role}*.",
-            parse_mode="Markdown"
-        )
     random.shuffle(role_pool)
     assigned = {}
 
@@ -21,6 +15,13 @@ def assign_roles(chat_id, player_ids):
         role = role_pool.pop() if role_pool else "Goat"
         db.assign_role(chat_id, player_id, role)
         assigned[player_id] = role
+
+        # ✅ Send role to player privately
+        context.bot.send_message(
+            chat_id=player_id,
+            text=f"🎭 Your role is *{role}*.",
+            parse_mode="Markdown"
+        )
 
     return assigned
 
