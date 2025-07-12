@@ -31,11 +31,12 @@ def handle_dm(update: Update, context: CallbackContext):
             safe_reply(result)
 
     elif text == "/mytasks":
-        task = db.get_current_task(user_id)
-        if task:
-            safe_reply(f"Your task: {task['desc']}")
-        else:
-            safe_reply("You have no active task.")
+    task = db.get_current_task(user_id)
+    if task:
+        desc = task.get("desc") or task.get("description") or str(task)
+        safe_reply(f"🧾 Your task: {desc}")
+    else:
+        safe_reply("You have no active task.")
 
     elif text.startswith("/complete_task"):
         parts = text.split()
