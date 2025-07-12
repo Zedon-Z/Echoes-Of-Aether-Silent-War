@@ -17,6 +17,7 @@ def assign_roles(chat_id, player_ids, context):
         assigned[player_id] = role
 
         # ✅ Send role to player privately
+        print(f"[LOG] DM to {player_id}: role = {role}")
         context.bot.send_message(
             chat_id=player_id,
             text=f"🎭 Your role is *{role}*.",
