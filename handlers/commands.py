@@ -193,3 +193,6 @@ def cancel_game(update: Update, context: CallbackContext):
 
     db.cancel_game(chat_id)
     update.message.reply_text("🚫 The game has been *cancelled*. You can /startgame again if you wish.", parse_mode='Markdown')
+
+def has_game_started(chat_id):
+    return games.get(chat_id, {}).get("started", False)
