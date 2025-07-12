@@ -158,6 +158,7 @@ def force_start(update: Update, context: CallbackContext):
 
     update.message.reply_text("🚀 Game is starting...")
     phases.start_day_phase(chat_id, context)
+    db.mark_game_started(chat_id)
 
 def get_chat_id(update: Update, context: CallbackContext):
     update.message.reply_text(f"Chat ID: `{update.effective_chat.id}`", parse_mode='Markdown')
