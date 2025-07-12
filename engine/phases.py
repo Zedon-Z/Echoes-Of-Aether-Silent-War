@@ -68,7 +68,7 @@ def begin_game(context: CallbackContext, chat_id):
     db.mark_game_started(chat_id)
     assign_roles(chat_id, players, context)
     context.bot.send_message(chat_id, "🎮 *The game begins!*", parse_mode='Markdown')
-    start_day_phase(chat_id, context)
+    start_night_phase(chat_id, context)
 
 def start_day_phase(chat_id, context: CallbackContext):
     context.bot.send_message(chat_id, "🌅 *Day Phase Begins.*\nDiscuss and find the impostors.", parse_mode='Markdown')
