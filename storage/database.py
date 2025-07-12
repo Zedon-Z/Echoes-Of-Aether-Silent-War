@@ -127,7 +127,53 @@ def abandon_current_task(user_id):
             game["players"][user_id]["tasks"].clear()
             return True
     return False
+# ✅ These are additional helper functions to be added to your existing `database.py`
+# Ensure none of these overwrite any existing working logic
 
+# Effect handling for roles like Succubus, Blight Whisperer    
+def apply_effect(chat_id, user_id, effect):
+    if chat_id in games and user_id in games[chat_id]["players"]:
+        games[chat_id]["players"][user_id].setdefault("effects", []).append(effect)
+        return True
+    return False
+
+# Voting override — force a user to vote against their will (Puppetmaster)
+def force_vote(chat_id, voter_id, target_id):
+    if chat_id in games:
+        games[chat_id].setdefault("votes", {})[voter_id] = target_id
+        return True
+    return False
+
+# Trickster-style vote swap (switches identities)
+def swap_votes(chat_id, user_id_1, user_id_2):
+    if chat_id not in games:
+        return False
+
+    votes = games[chat_id].get("votes", {})
+    swapped = {}
+    for voter, target in votes.items():
+        if target == user_id_1:
+            swapped[voter] = user_id_2
+        elif target == user_id_2:
+            swapped[voter] = user_id_1
+        else:
+            swapped[voter] = target
+    games[chat_id]["votes"] = swapped
+    return True
+
+# Get player role safely
+def get_player_role(chat_id, user_id):
+    if chat_id in games and user_id in games[chat_id]["players"]:
+        return games[chat_id]["players"][user_id].get("role")
+    return None
+
+# Used in plot twists to wipe current task
+def abandon_current_task(user_id):
+    for chat_id in games:
+        if user_id in games[chat_id]["players"]:
+            games[chat_id]["players"][user_id]["tasks"] = []
+            return True
+    return False
 def reveal_all_roles():
     reveal = []
     for game in games.values():
