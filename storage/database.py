@@ -8,7 +8,14 @@ usernames = {}
 
 def is_game_active(chat_id):
     return chat_id in games
-
+    
+def has_game_started(chat_id):
+    return games.get(chat_id, {}).get("started", False)
+    
+def mark_game_started(chat_id):
+    if chat_id in games:
+        games[chat_id]["started"] = True
+        
 def start_new_game(chat_id):
     games[chat_id] = {
         "phase": "day",
