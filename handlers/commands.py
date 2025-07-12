@@ -149,7 +149,7 @@ def force_start(update: Update, context: CallbackContext):
         return
 
     players = db.get_player_list(chat_id)
-    if len(players) < 6:
+    if len(players) < 3:
         update.message.reply_text("⚠️ At least 6 players are needed to start the game.")
         return
 
