@@ -61,7 +61,7 @@ def begin_game(context: CallbackContext, chat_id):
         return
 
     players = db.get_player_list(chat_id)
-    if len(players) < 6:
+    if len(players) < 3:
         context.bot.send_message(chat_id, "❌ Not enough players to begin. Minimum 6 required.")
         return
 
