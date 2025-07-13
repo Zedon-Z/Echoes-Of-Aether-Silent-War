@@ -8,7 +8,7 @@ def use_item(user_id, item_name):
         return "❌ You don’t have that item."
         
     if db.is_item_on_cooldown(user_id, item_name):
-    return "⏳ That item is still cooling down. Try again later."
+        return "⏳ That item is still cooling down. Try again later."
     
     response = "🌀 Nothing happens. Maybe it’s a fake?"
 
