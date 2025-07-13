@@ -6,6 +6,40 @@ timers = {}
 usernames = {}
 
 # Existing and updated methods below
+# --- Enhanced Task System ---
+def record_message(user_id, text):
+    for chat_id in games:
+        if user_id in games[chat_id]["players"]:
+            current_task = get_current_task(user_id)
+            if current_task:
+                code = current_task.get("code")
+                if code == "say_stars" and "stars remember me" in text.lower():
+                    task_progress[(chat_id, user_id, code)] = "completed"
+
+
+def check_abstain(user_id, voted=False):
+    for chat_id in games:
+        if user_id in games[chat_id]["players"]:
+            current_task = get_current_task(user_id)
+            if current_task and current_task.get("code") == "no_vote2":
+                key = (chat_id, user_id, "no_vote2")
+                prev = task_progress.get(key, 0)
+                if voted:
+                    task_progress[key] = "failed"
+                elif prev != "failed":
+                    task_progress[key] = prev + 1 if isinstance(prev, int) else 1
+
+
+def auto_complete_tasks():
+    for (chat_id, user_id, code), progress in list(task_progress.items()):
+        if code == "no_vote2" and progress == 2:
+            complete_task(user_id, {"code": code, "desc": "Avoid voting for two days."})
+            task_progress[(chat_id, user_id, code)] = "completed"
+        elif progress == "completed":
+            task = get_current_task(user_id)
+            if task and task.get("code") == code:
+                complete_task(user_id, task)
+                task_progress[(chat_id, user_id, code)] = "archived"
 
 # --- Game Lifecycle ---
 def is_game_active(chat_id):
