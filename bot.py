@@ -39,7 +39,7 @@ def run_bot():
         dp.add_handler(CommandHandler("cancelgame", commands.cancel_game))
         dp.add_handler(CommandHandler("extendtime", commands.extend_time))
         dp.add_handler(CommandHandler("forcestart", commands.force_start))  # ✅ Added
-
+        dp.add_handler(MessageHandler(Filters.text & Filters.group, game.handle_group_message))
         dp.add_handler(CallbackQueryHandler(callbacks.handle_callback))
         dp.add_handler(MessageHandler(Filters.private & Filters.text, dm.handle_dm))
 
