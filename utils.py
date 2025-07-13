@@ -3,7 +3,18 @@ from functools import wraps
 from telegram import Update
 from telegram.ext import CallbackContext
 from storage import authorized
+from telegram.ext import CallbackContext
+from telegram import Bot
 
+def create_context(bot: Bot) -> CallbackContext:
+    class DummyUpdate:
+        effective_chat = None
+        effective_user = None
+
+    context = CallbackContext.from_bot(bot)
+    context._update = DummyUpdate()
+    return context
+    
 def group_allowed(func):
     @wraps(func)
     def wrapped(update: Update, context: CallbackContext, *args, **kwargs):
