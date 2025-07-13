@@ -78,28 +78,47 @@ def begin_game(context: CallbackContext, chat_id):
     start_night_phase(chat_id, context)
 
 def start_night_phase(chat_id, context: CallbackContext):
-    context.bot.send_animation(chat_id, animation='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3h4bzF1dzRyb3B4b2Z2cTBoNzF4NmQ1a2htazFjZjk2ZXV6djFmaCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/ZVik7pBtu9dNS/giphy.gif')
+    context.bot.send_animation(
+        chat_id,
+        animation='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGRvdzJ1NGdjYzhrYW14M2w4bXBoOXEyZ2Z6aW5nNXRocjByNmp4cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/VbnUQpnihPSIgIXuZv/giphy.gif'
+    )
+
     context.bot.send_message(
         chat_id=chat_id,
-        text="🌌 *Night Phase Begins.*\nA hush falls over the realm. Darkness cloaks intentions. Roles with night powers may act now.",
-        parse_mode='Markdown'
+        text=f"🌙 *Night falls.*\n{get_night_story()}\nEach role must act in shadows.",
+        parse_mode="Markdown"
     )
+
     db.set_phase(chat_id, "night")
-    maybe_trigger_plot_twist(chat_id, context)
+    alive_players = db.get_alive_players(chat_id)
+    usernames = {uid: db.get_username(uid) or f"user{uid}" for uid in alive_players}
 
-    for user_id in db.get_alive_players(chat_id):
+    for user_id in alive_players:
         role = db.get_player_role(chat_id, user_id)
-        if role in ["Oracle", "Shadeblade", "Succubus", "Trickster", "Puppetmaster", "Blight Whisperer"]:
-            try:
-                context.bot.send_message(
-                    chat_id=user_id,
-                    text=f"🔮 As *{role}*, you may now use your power. Use `/usepower @target`.",
-                    parse_mode="Markdown"
-                )
-            except Exception as e:
-                print(f"⚠️ Could not DM {user_id} during night phase: {e}")
 
-    context.job_queue.run_once(lambda ctx: resolve_night(chat_id, ctx), 60)
+        # Skip roles with no power
+        if role in ["Goat"]:
+            continue
+
+        # Build buttons for other targets
+        buttons = []
+        for target_id in alive_players:
+            if target_id != user_id:
+                target_name = usernames[target_id]
+                buttons.append([
+                    InlineKeyboardButton(f"Use Power on {target_name}", callback_data=f"usepower_{target_id}")
+                ])
+
+        try:
+            context.bot.send_message(
+                chat_id=user_id,
+                text="🔮 Choose a target to use your power on:",
+                reply_markup=InlineKeyboardMarkup(buttons)
+            )
+        except Exception as e:
+            print(f"[WARN] Could not send power buttons to {user_id}: {e}")
+
+    context.job_queue.run_once(lambda ctx: start_day_phase(chat_id, ctx), 90)
 
 def resolve_night(chat_id, context):
     context.bot.send_message(chat_id, f"☀️ The night fades. {get_night_story()}")
