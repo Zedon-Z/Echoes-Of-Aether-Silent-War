@@ -302,7 +302,8 @@ def complete_task(user_id, task):
             item = reward_map.get(code, "relic")
 
             # Add reward to inventory
-            game["players"][user_id]["inventory"].append(item)
+            inv = game["players"][user_id].setdefault("inventory", {})
+            inv[item] = inv.get(item, 0) + 1
 
 def abandon_current_task(user_id):
     for game in games.values():
