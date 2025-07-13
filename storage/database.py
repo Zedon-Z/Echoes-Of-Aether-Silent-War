@@ -4,7 +4,64 @@ games = {}
 game_start_times = {}
 timers = {}
 usernames = {}
+task_progress = {}
+alliances = {}
+whispers = {}
+# --- Alliance Vote Monitoring ---
+def notify_allies_vote(chat_id, voter_id, target_id, context):
+    for pair in alliances.get(chat_id, []):
+        if voter_id in pair:
+            ally_id = pair[0] if pair[1] == voter_id else pair[1]
+            try:
+                context.bot.send_message(
+                    chat_id=ally_id,
+                    text=f"👁️ Your ally @{get_username(voter_id)} voted for @{get_username(target_id)}."
+                )
+            except Exception as e:
+                print(f"[WARN] Failed to notify ally of vote: {e}")
 
+# --- Bonus Task When Allies Protect Each Other ---
+def bonus_task_if_ally_protected(chat_id, protector_id, target_id):
+    if are_allied(chat_id, protector_id, target_id):
+        games[chat_id]["players"][protector_id]["tasks"].append({
+            "code": "ally_bonus",
+            "desc": f"Protected your ally @{get_username(target_id)}."
+        })
+
+# --- Alliance Core Functions ---
+def add_alliance(chat_id, user1, user2):
+    pair = tuple(sorted([user1, user2]))
+    if chat_id not in alliances:
+        alliances[chat_id] = []
+    if pair not in alliances[chat_id]:
+        alliances[chat_id].append(pair)
+
+def are_allied(chat_id, user1, user2):
+    pair = tuple(sorted([user1, user2]))
+    return pair in alliances.get(chat_id, [])
+
+def get_allies(chat_id, user_id):
+    return [
+        other for pair in alliances.get(chat_id, [])
+        for other in pair if user_id in pair and other != user_id
+        ]
+    
+# --- Alliance Chat System ---
+def send_alliance_group_message(chat_id, from_id, message, context):
+    if chat_id not in alliances:
+        return
+
+    for pair in alliances[chat_id]:
+        if from_id in pair:
+            for uid in pair:
+                if uid != from_id:
+                    try:
+                        context.bot.send_message(
+                            chat_id=uid,
+                            text=f"🤐 Alliance Chat | @{get_username(from_id)}:\n{message}"
+                        )
+                    except Exception as e:
+                        print(f"[WARN] Could not deliver alliance group message to {uid}: {e}")
 # Existing and updated methods below
 # --- Enhanced Task System ---
 def record_message(user_id, text):
