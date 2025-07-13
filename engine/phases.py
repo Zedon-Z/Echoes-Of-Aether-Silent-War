@@ -180,34 +180,48 @@ def start_day_phase(chat_id, context: CallbackContext):
     context.job_queue.run_once(lambda ctx: tally_votes(chat_id, ctx), 90)
 
 def tally_votes(chat_id, context: CallbackContext):
-    votes = db.get_all_votes(chat_id)
+    votes = db.games[chat_id].get("votes", {})
     if not votes:
-        context.bot.send_message(chat_id, "⚖️ No votes were cast. No one is eliminated.")
-        return start_night_phase(chat_id, context)
+        context.bot.send_message(chat_id, "❌ No votes recorded.")
+        return
 
-    vote_counts = {}
+    from collections import Counter
+    tally = Counter()
+
+    # Apply forced vote or abstain checks
+    for voter_id in db.get_alive_players(chat_id):
+        voted = voter_id in votes
+        db.check_abstain(voter_id, voted=voted)
+
+    # Count votes
     for voter, target in votes.items():
-        vote_counts[target] = vote_counts.get(target, 0) + 1
+        if db.is_player_protected(target):
+            continue
+        if db.get_user_role(voter) and db.get_user_role(voter) in ["Succubus", "Courtesan"]:
+            if db.games[chat_id]["players"][voter].get("vote_disabled"):
+                continue
+        tally[target] += 1
 
-    max_votes = max(vote_counts.values())
-    top_targets = [pid for pid, count in vote_counts.items() if count == max_votes]
+    if not tally:
+        context.bot.send_message(chat_id, "🛡 All targets were protected or votes invalid.")
+        return
 
-    if len(top_targets) > 1:
-        context.bot.send_message(chat_id, "🔄 The vote is tied. No one is eliminated.")
-        return start_night_phase(chat_id, context)
+    # Find top voted
+    target_id, count = tally.most_common(1)[0]
+    db.games[chat_id]["players"][target_id]["alive"] = False
 
-    eliminated = top_targets[0]
-    db.eliminate_player(chat_id, eliminated)
     context.bot.send_message(
         chat_id=chat_id,
-        text=f"☠️ <a href='tg://user?id={eliminated}'>A player</a> has been eliminated!",
-        parse_mode='HTML'
+        text=f"⚖️ @{db.get_username(target_id)} has been eliminated with {count} votes."
     )
 
-    if db.check_win_conditions(chat_id):
-        context.bot.send_message(chat_id, "🎉 Game over! A faction has won!")
-    else:
-        start_night_phase(chat_id, context)
+    # Wipe vote data
+    db.games[chat_id]["votes"] = {}
+
+    # Finalize tasks
+    db.auto_complete_tasks()
+
+    # TODO: transition to night
 
 def handle_usepower(user_id, target_id, chat_id, context: CallbackContext):
     role = db.get_player_role(chat_id, user_id)
