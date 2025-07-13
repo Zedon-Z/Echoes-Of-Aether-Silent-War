@@ -22,5 +22,13 @@ def abandon_task(user_id):
 def assign_task(user_id, description, code):
     """Attach a task to a user with a description and unique code."""
     tasks = db.get_tasks(user_id)
-    new_task = {"description": description, "code": code}
+
+    reward_map = {
+        "say_stars": "truth_crystal",
+        "guard_3rounds": "shadow_ring",
+        "no_vote2": "goat_scroll"
+    }
+
+    reward_item = reward_map.get(code, "relic")
+    new_task = {"description": description, "code": code, "reward": reward_item}
     tasks.append(new_task)
