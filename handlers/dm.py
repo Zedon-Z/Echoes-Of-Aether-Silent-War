@@ -144,6 +144,13 @@ def handle_dm(update: Update, context: CallbackContext):
                     )
                 else:
                     safe_reply("No valid offer found.")
+    elif text == "/myitems":
+        items = db.get_inventory(user_id)
+        if not items:
+            safe_reply("🎒 Your inventory is empty.")
+        else:
+            desc = [f"• {item} — {describe_item(item)}" for item in items]
+            safe_reply("🧰 Your Items:\n" + "\n".join(desc))                 
 
     else:
         safe_reply(
