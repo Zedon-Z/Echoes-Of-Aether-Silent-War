@@ -3,6 +3,7 @@ from telegram.ext import CallbackContext
 from storage import database as db
 from engine import tasks, win
 from engine.roles import use_power
+from engine.inventory import use_item
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 def handle_callback(update: Update, context: CallbackContext):
@@ -85,3 +86,8 @@ def handle_callback(update: Update, context: CallbackContext):
         result = use_power(user_id, target_username)
         query.answer("Power used")
         query.edit_message_text(result)
+    elif data.startswith("useitem_"):
+    item = data.split("_", 1)[1]
+    result = use_item(user_id, item)
+    query.answer()
+    query.edit_message_text(f"{result}")
