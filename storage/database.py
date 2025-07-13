@@ -266,7 +266,9 @@ def get_inventory(user_id):
 def remove_item(user_id, item):
     inv = get_inventory(user_id)
     if item in inv:
-        inv.remove(item)
+        inv[item] -= 1
+        if inv[item] <= 0:
+            del inv[item]
 
 def grant_immunity(user_id):
     for game in games.values():
@@ -424,7 +426,16 @@ def get_pending_offers(chat_id, to_user):
         (from_user, item) for (cid, from_user, target), item in pending_offers.items()
         if cid == chat_id and target == to_user
     ]
+    
+cooldowns = {}  # key: (user_id, item), value: timestamp
 
+def set_item_cooldown(user_id, item, duration=60):
+    import time
+    cooldowns[(user_id, item)] = time.time() + duration
+
+def is_item_on_cooldown(user_id, item):
+    import time
+    return cooldowns.get((user_id, item), 0) > time.time()
 # --- Thread/Story Mechanics ---
 def used_thread(user_id):
     return False
