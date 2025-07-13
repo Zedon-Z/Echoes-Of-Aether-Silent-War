@@ -106,20 +106,40 @@ def resolve_night(chat_id, context):
     start_day_phase(chat_id, context)
 
 def start_day_phase(chat_id, context: CallbackContext):
-    context.bot.send_animation(chat_id, animation='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ3FhYm5qNTY2bTg2a2s2cDZ2NzY2dTgwbXhmZm9nZTAyazE0cmJ3byZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oEjHG3rG7HrzUpt7W/giphy.gif')
+    context.bot.send_animation(
+        chat_id,
+        animation='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ3FhYm5qNTY2bTg2a2s2cDZ2NzY2dTgwbXhmZm9nZTAyazE0cmJ3byZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oEjHG3rG7HrzUpt7W/giphy.gif'
+    )
+    
     context.bot.send_message(
         chat_id=chat_id,
         text=f"🌅 *Day Phase Begins.*\n{get_dawn_story()}\nThe sun rises. Whispers turn to accusations. Discuss and vote wisely.",
         parse_mode='Markdown'
     )
+    
     db.set_phase(chat_id, "day")
     maybe_trigger_plot_twist(chat_id, context)
 
     players = db.get_alive_players(chat_id)
-    buttons = [[InlineKeyboardButton(f"Vote: {db.get_username(pid)}", callback_data=f"vote_{pid}")] for pid in players]
-    markup = InlineKeyboardMarkup(buttons)
-    vote_msg = context.bot.send_message(chat_id, "🗳️ *Vote for a player to eliminate:*", parse_mode='Markdown', reply_markup=markup)
-    active_vote_buttons[chat_id] = vote_msg.message_id
+    usernames = {uid: db.get_username(uid) or f"user{uid}" for uid in players}
+
+    for user_id in players:
+        vote_buttons = []
+        for target_id in players:
+            if target_id != user_id:
+                vote_buttons.append([
+                    InlineKeyboardButton(f"Vote: {usernames[target_id]}", callback_data=f"vote_{target_id}")
+                ])
+
+        try:
+            context.bot.send_message(
+                chat_id=user_id,
+                text="🗳️ *Vote privately:* Who should be eliminated?",
+                reply_markup=InlineKeyboardMarkup(vote_buttons),
+                parse_mode="Markdown"
+            )
+        except Exception as e:
+            print(f"[WARN] Could not send private vote buttons to {user_id}: {e}")
 
     for user_id in players:
         task_roll = random.choice(["phrase", "protect", "abstain"])
