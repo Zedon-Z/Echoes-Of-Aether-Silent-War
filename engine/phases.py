@@ -192,7 +192,9 @@ def tally_votes(chat_id, context: CallbackContext):
     for voter_id in db.get_alive_players(chat_id):
         voted = voter_id in votes
         db.check_abstain(voter_id, voted=voted)
-
+    # Notify allies about their partner's vote
+    for voter_id, target_id in votes.items():
+        db.notify_allies_vote(chat_id, voter_id, target_id, context)
     # Count votes
     for voter, target in votes.items():
         if db.is_player_protected(target):
