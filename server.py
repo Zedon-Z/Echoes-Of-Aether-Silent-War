@@ -1,14 +1,6 @@
 from flask import Flask
 import os
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.executors.pool import ThreadPoolExecutor
 
-executors = {
-    'default': ThreadPoolExecutor(10)
-}
-
-scheduler = BackgroundScheduler(executors=executors)
-scheduler.start()
 app = Flask(__name__)
 
 @app.route('/')
