@@ -125,6 +125,14 @@ def resolve_night(chat_id, context):
     start_day_phase(chat_id, context)
 
 def start_day_phase(chat_id, context: CallbackContext):
+    # Apply night kills
+    deaths = db.games[chat_id].pop("deaths", [])
+    for uid in deaths:
+        db.games[chat_id]["players"][uid]["alive"] = False
+        context.bot.send_message(
+        chat_id=chat_id,
+        text=f"💀 @{db.get_username(uid)} was found dead at dawn💀⚰️..."
+        )
     context.bot.send_animation(
         chat_id,
         animation='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ3FhYm5qNTY2bTg2a2s2cDZ2NzY2dTgwbXhmZm9nZTAyazE0cmJ3byZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oEjHG3rG7HrzUpt7W/giphy.gif'
