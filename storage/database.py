@@ -59,7 +59,12 @@ def get_player_list(chat_id):
     }
 
 def cast_vote(chat_id, voter_id, target_id):
-    games[chat_id]["votes"][voter_id] = target_id
+    if chat_id not in games:
+        return False
+    if voter_id == target_id:
+        return False
+    games[chat_id].setdefault("votes", {})[voter_id] = target_id
+    return True
 
 def get_user_role(user_id):
     for game in games.values():
