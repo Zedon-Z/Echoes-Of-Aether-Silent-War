@@ -48,15 +48,16 @@ def assign_roles(chat_id, player_ids, context):
         except Exception as e:
             print(f"[WARN] Could not DM {player_id} their role: {e}")
     return assigned
-
 def use_power(user_id, target_username):
+    from storage import database as db
+    chat_id = db.get_chat_id_by_user(user_id)
     target_username = target_username.replace("@", "")
     target_id = db.get_user_id_by_name(target_username)
 
     if not target_id:
         return "❌ Target not found."
 
-    user_role = db.get_user_role(user_id)
+    user_role = db.get_player_role(chat_id, user_id)
     if not user_role:
         return "❌ You don't have a role assigned."
 
@@ -83,6 +84,7 @@ def use_power(user_id, target_username):
         return power_fn(user_id, target_id, target_username)
     return "❌ Your role has no defined power yet."
 
+
 # --- Individual Role Powers ---
 
 def use_shadeblade(user_id, target_id, username):
@@ -104,32 +106,40 @@ def use_tinkerer(user_id, target_id, username):
     return f"🧪 @{username}'s inventory: {', '.join(inv) if inv else 'Empty'}"
 
 def use_whispersmith(user_id, target_id, username):
-    return "📝 You planted false evidence on @" + username + "."
+    db.enable_whisper(db.get_chat_id_by_user(user_id), user_id, target_id)
+    return f"📝 You may now whisper to @{username}."
 
 def use_blight(user_id, target_id, username):
+    db.curse_alignment(db.get_chat_id_by_user(user_id), target_id)
     return f"☣️ You corrupted @{username}'s faction alignment."
 
 def use_lumen_priest(user_id, target_id, username):
-    return f"🛐 @{username} was cleansed of any dark influences."
+    db.set_protection(db.get_chat_id_by_user(user_id), target_id)
+    return f"🛐 @{username} was cleansed and shielded from harm."
 
 def use_light_herald(user_id, target_id, username):
-    return "📜 You sent a public message disguised as another."
+    alignment = db.reveal_alignment(db.get_chat_id_by_user(user_id), target_id)
+    return f"🌟 @{username}'s aura is *{alignment}*."
 
 def use_saboteur(user_id, target_id, username):
-    return f"🧨 @{username}'s next action has been jammed!"
+    db.disable_inventory_item(db.get_chat_id_by_user(user_id), target_id)
+    return f"🧨 You sabotaged one of @{username}'s items."
 
 def use_courtesan(user_id, target_id, username):
     db.disable_player_next_vote(target_id)
-    return f"💃 @{username} is charmed and can't vote."
+    return f"💃 @{username} is distracted and cannot vote next round."
 
 def use_puppetmaster(user_id, target_id, username):
-    return "🎭 You pulled the strings. A vote will be overridden. (stub)"
+    db.force_vote(db.get_chat_id_by_user(user_id), target_id, user_id)
+    return f"🎭 You control @{username}'s next vote."
 
 def use_trickster(user_id, target_id, username):
-    return "🎲 Swapped roles between you and @" + username + " (stub)"
+    db.swap_roles(db.get_chat_id_by_user(user_id), user_id, target_id)
+    return f"🎲 You swapped roles with @{username}."
 
 def use_ascended(user_id, target_id, username):
-    return "🔥 Prophecy flows through you. Override power unlocked. (stub)"
+    db.mark_immune(db.get_chat_id_by_user(user_id), user_id)
+    return "🔥 You are immune to the next vote."
 
 def use_archivist(user_id, target_id, username):
     count = db.get_relic_count(user_id)
