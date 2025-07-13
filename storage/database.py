@@ -57,7 +57,10 @@ def get_player_list(chat_id):
         for uid, data in games[chat_id]["players"].items()
         if data["alive"]
     }
-
+def assign_role(chat_id, user_id, role):
+    if chat_id in games and user_id in games[chat_id]["players"]:
+        games[chat_id]["players"][user_id]["role"] = role
+        
 def cast_vote(chat_id, voter_id, target_id):
     if chat_id not in games:
         return False
