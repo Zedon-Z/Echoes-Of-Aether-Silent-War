@@ -3,8 +3,11 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CallbackContext
 from storage import database as db
 from engine import phases
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime, timedelta
 from functools import partial
 import time
+from utils import schedule_begin_game, countdown_alert
 
 # Track join message ID to update later
 join_message_tracker = {}
@@ -17,13 +20,7 @@ def start(update: Update, context: CallbackContext):
     )
 
 # ----- START GAME -----
-from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime, timedelta
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CallbackContext, Update
-import time
-import db
-from utils import schedule_begin_game, countdown_alert  # make sure these exist or are defined below
+  # make sure these exist or are defined below
 
 scheduler = BackgroundScheduler()
 scheduler.start()
