@@ -42,9 +42,12 @@ def handle_callback(update: Update, context: CallbackContext):
 
     elif data.startswith("vote_"):
         target_id = int(data.split("_")[1])
+        if user_id == target_id:
+            query.answer("❌ You cannot vote for yourself.")
+        return
         db.cast_vote(chat_id, user_id, target_id)
-        query.answer("Vote recorded.")
-        query.edit_message_text("✅ Vote registered.")
+        query.answer("✅ Your vote has been recorded.")
+        query.edit_message_text("🗳️ Vote submitted.")
     elif data.startswith("task_complete_"):
         code = data.split("_")[-1]
         result = tasks.submit_task(user_id, code)
