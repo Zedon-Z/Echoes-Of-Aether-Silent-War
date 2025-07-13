@@ -27,7 +27,15 @@ def use_item(user_id, item_name):
             response = "⚙️ You activated the Core Key. Nexus Guild wins!"
         else:
             response = "The Core is not aligned. The key does nothing..."
-
+def describe_item(item_name):
+    descriptions = {
+        "relic": "🪙 A mysterious fragment of Aether. Required for certain wins.",
+        "truth_crystal": "🔍 Reveals all roles when used.",
+        "shadow_ring": "🕳 Grants temporary death immunity.",
+        "goat_scroll": "🐐 Calls the Goat Prophecy...",
+        "core_key": "⚙️ Nexus Guild can use this to trigger victory."
+    }
+    return descriptions.get(item_name, "❓ An unknown item.")
     # Remove item after use
     db.remove_item(user_id, item_name)
     return response
