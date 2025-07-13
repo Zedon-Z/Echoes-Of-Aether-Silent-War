@@ -144,7 +144,7 @@ def handle_dm(update: Update, context: CallbackContext):
                     )
                 else:
                     safe_reply("No valid offer found.")
-               )                 
+                              
     elif text == "/myitems":
         inv = db.get_inventory(user_id)
         if not inv:
