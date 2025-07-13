@@ -71,6 +71,7 @@ def begin_game(context: CallbackContext, chat_id):
         return
 
     db.mark_game_started(chat_id)
+    print("[DEBUG] Calling assign_roles...")  # <- add this
     assign_roles(chat_id, players, context)
     context.bot.send_animation(chat_id, animation='https://media.giphy.com/media/QBd2kLB5qDmysEXre9/giphy.gif')
     context.bot.send_message(chat_id, "🎮 *The game begins! Night falls...*", parse_mode='Markdown')
