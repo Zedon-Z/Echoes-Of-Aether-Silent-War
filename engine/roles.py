@@ -17,13 +17,36 @@ def assign_roles(chat_id, player_ids, context):
         assigned[player_id] = role
 
         # ✅ Send role to player privately
-        print(f"[LOG] DM to {player_id}: role = {role}")
-        context.bot.send_message(
-            chat_id=player_id,
-            text=f"🎭 Your role is *{role}*.",
-            parse_mode="Markdown"
-        )
+        role_descriptions = {
+            "Oracle": "🔮 See the role of a player.",
+            "Succubus": "💘 Charm a player — they cannot vote you.",
+            "Shadeblade": "🗡️ Mark one player for elimination.",
+            "Puppetmaster": "🧵 Control someone’s vote.",
+            "Trickster": "🎭 Swap your vote with another.",
+            "Saboteur": "🔧 Disable an item from a player.",
+            "Blight Whisperer": "☠️ Curse someone's task.",
+            "Tinkerer": "🔨 Craft a random item.",
+            "Lumen Priest": "🛡️ Shield someone from elimination.",
+            "Light Herald": "🌟 Reveal someone’s alignment.",
+            "Ascended": "✨ Become immune to 1 vote.",
+            "Courtesan": "💋 Silence someone for 1 round.",
+            "Archivist": "📚 Reveal data from last death.",
+            "Whispersmith": "💬 Whisper secret messages.",
+            "Goat": "🐐 No power, only vibes."
+            }
+        description = role_descriptions.get(role, "No description available.")
 
+        try:
+            context.bot.send_message(
+            chat_id=player_id,
+            text=(
+                f"🎭 Your role is *{role}*.\n"
+                f"{description}"
+            ),
+            parse_mode="Markdown"
+            )
+        except Exception as e:
+            print(f"[WARN] Could not DM {player_id} their role: {e}")
     return assigned
 
 def use_power(user_id, target_username):
