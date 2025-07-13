@@ -87,7 +87,7 @@ def handle_callback(update: Update, context: CallbackContext):
         query.answer("Power used")
         query.edit_message_text(result)
     elif data.startswith("useitem_"):
-    item = data.split("_", 1)[1]
-    result = use_item(user_id, item)
-    query.answer()
-    query.edit_message_text(f"{result}")
+        item = data.split("_", 1)[1]
+        result = use_item(user_id, item)
+        query.answer()
+        query.edit_message_text(f"{result}")
