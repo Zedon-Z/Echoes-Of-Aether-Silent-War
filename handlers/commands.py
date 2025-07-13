@@ -144,6 +144,7 @@ def vote(update: Update, context: CallbackContext):
 
 def force_start(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
+
     if db.has_game_started(chat_id):
         update.message.reply_text("⚠️ The game has already started.")
         return
@@ -153,12 +154,11 @@ def force_start(update: Update, context: CallbackContext):
 
     players = db.get_player_list(chat_id)
     if len(players) < 3:
-        update.message.reply_text("⚠️ At least 6 players are needed to start the game.")
+        update.message.reply_text("⚠️ At least 3 players are needed to start the game.")
         return
 
-    update.message.reply_text("🚀 Game is starting...")
-    phases.start_day_phase(chat_id, context)
-    db.mark_game_started(chat_id)
+    update.message.reply_text("🚀 Forcing game start...")
+    phases.begin_game(context, chat_id)  # ✅ Start full game logic
 
 def get_chat_id(update: Update, context: CallbackContext):
     update.message.reply_text(f"Chat ID: `{update.effective_chat.id}`", parse_mode='Markdown')
