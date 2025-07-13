@@ -6,6 +6,16 @@ from storage import authorized
 from telegram.ext import CallbackContext
 from telegram import Bot
 
+def countdown_alert(seconds_left, chat_id, bot):
+    def alert_fn():
+        emoji = "⏳" if seconds_left > 5 else "🚨"
+        bot.send_message(
+            chat_id=chat_id,
+            text=f"{emoji} *{seconds_left} seconds left before the game begins!*",
+            parse_mode='Markdown'
+        )
+    return alert_fn
+    
 def schedule_begin_game(chat_id, bot):
     ctx = CallbackContext.from_bot(bot)
     import engine.phases as phases
