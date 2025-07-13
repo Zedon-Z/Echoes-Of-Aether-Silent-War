@@ -144,6 +144,7 @@ def handle_dm(update: Update, context: CallbackContext):
                     )
                 else:
                     safe_reply("No valid offer found.")
+               )                 
     elif text == "/myitems":
         inv = db.get_inventory(user_id)
         if not inv:
@@ -153,14 +154,13 @@ def handle_dm(update: Update, context: CallbackContext):
             [InlineKeyboardButton(f"Use: {item} ({qty})", callback_data=f"useitem_{item}")]
             for item, qty in inv.items()
             ]
-    
-                context.bot.send_message(
+
+            context.bot.send_message(
                 chat_id=user_id,
                 text="🧰 *Your Items:*",
                 parse_mode="Markdown",
                 reply_markup=InlineKeyboardMarkup(buttons)
-                )                 
-
+                )
     else:
         safe_reply(
             "Unknown command. Try:\n"
