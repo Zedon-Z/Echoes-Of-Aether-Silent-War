@@ -78,3 +78,9 @@ def handle_callback(update: Update, context: CallbackContext):
             query.edit_message_text(f"🏆 *Game Over! Winner:* {winner}", parse_mode="Markdown")
         else:
             query.answer("No winner yet.")
+    elif data.startswith("usepower_"):
+        target_id = int(data.split("_")[1])
+        target_username = db.get_username(target_id) or f"user{target_id}"
+        result = use_power(user_id, target_username)
+        query.answer("Power used")
+        query.edit_message_text(result)
