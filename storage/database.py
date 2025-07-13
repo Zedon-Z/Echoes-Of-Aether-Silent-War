@@ -289,8 +289,20 @@ def get_current_task(user_id):
 def complete_task(user_id, task):
     for game in games.values():
         if user_id in game["players"]:
+            # Remove task
             game["players"][user_id]["tasks"].remove(task)
-            game["players"][user_id]["inventory"].append("relic")
+            
+            # Determine item reward based on task code
+            code = task.get("code")
+            reward_map = {
+                "say_stars": "truth_crystal",
+                "guard_3rounds": "shadow_ring",
+                "no_vote2": "goat_scroll"
+            }
+            item = reward_map.get(code, "relic")
+
+            # Add reward to inventory
+            game["players"][user_id]["inventory"].append(item)
 
 def abandon_current_task(user_id):
     for game in games.values():
