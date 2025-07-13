@@ -108,7 +108,13 @@ def has_game_started(chat_id):
 def mark_game_started(chat_id):
     if chat_id in games:
         games[chat_id]["started"] = True
-
+        
+def get_chat_id_by_user(user_id):
+    for chat_id, game in games.items():
+        if user_id in game.get("players", {}):
+            return chat_id
+    return None
+    
 def start_new_game(chat_id):
     games[chat_id] = {
         "phase": "day",
