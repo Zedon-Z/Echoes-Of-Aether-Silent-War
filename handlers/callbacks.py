@@ -42,12 +42,29 @@ def handle_callback(update: Update, context: CallbackContext):
 
     elif data.startswith("vote_"):
         target_id = int(data.split("_")[1])
+    
         if user_id == target_id:
             query.answer("❌ You cannot vote for yourself.")
         return
-        db.cast_vote(chat_id, user_id, target_id)
-        query.answer("✅ Your vote has been recorded.")
-        query.edit_message_text("🗳️ Vote submitted.")
+
+        if db.cast_vote(chat_id, user_id, target_id):
+            query.answer("✅ Your vote has been recorded.")
+            query.edit_message_text("🗳️ Vote submitted.")
+
+        # Announce publicly in group
+        try:
+            voter_name = db.get_username(user_id) or query.from_user.full_name or f"user{user_id}"
+            target_name = db.get_username(target_id) or f"user{target_id}"
+
+            context.bot.send_message(
+                chat_id=chat_id,
+                text=f"🗳️ *{voter_name}* has voted to eliminate *{target_name}*.",
+                parse_mode='Markdown'
+            )
+        except Exception as e:
+            print(f"[WARN] Vote announcement failed: {e}")
+        else:
+            query.answer("⚠️ Voting failed.")
     elif data.startswith("task_complete_"):
         code = data.split("_")[-1]
         result = tasks.submit_task(user_id, code)
