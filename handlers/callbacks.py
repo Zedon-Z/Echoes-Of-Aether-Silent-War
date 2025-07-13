@@ -2,6 +2,7 @@ from telegram import Update
 from telegram.ext import CallbackContext
 from storage import database as db
 from engine import tasks, win
+from engine.roles import use_power
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 def handle_callback(update: Update, context: CallbackContext):
