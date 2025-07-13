@@ -21,8 +21,7 @@ def start(update: Update, context: CallbackContext):
     )
 
 # ----- START GAME -----
-  # make sure these exist or are defined below
-
+# Start the scheduler (do this only once globally)
 scheduler = BackgroundScheduler()
 scheduler.start()
 
@@ -39,33 +38,51 @@ def start_game(update: Update, context: CallbackContext):
     db.set_timer(chat_id, countdown)
     db.set_game_start_time(chat_id, int(time.time()) + countdown)
 
-    # ✅ Schedule begin_game using named function
+    # ✅ Schedule game start
     scheduler.add_job(
         func=schedule_begin_game,
         args=[chat_id, bot],
         trigger='date',
-        run_date=datetime.utcnow() + timedelta(seconds=countdown)
+        run_date=datetime.utcnow().replace(tzinfo=pytz.UTC) + timedelta(seconds=countdown)
     )
 
-    # ✅ Schedule countdown alerts via named wrapper
+    # ✅ Schedule countdown alerts
     if countdown >= 30:
         scheduler.add_job(
             countdown_alert(30, chat_id, bot),
             trigger='date',
-            run_date=datetime.utcnow() + timedelta(seconds=countdown - 30)
+            run_date=datetime.utcnow().replace(tzinfo=pytz.UTC) + timedelta(seconds=countdown - 30)
         )
     if countdown >= 10:
         scheduler.add_job(
             countdown_alert(10, chat_id, bot),
             trigger='date',
-            run_date=datetime.utcnow() + timedelta(seconds=countdown - 10)
+            run_date=datetime.utcnow().replace(tzinfo=pytz.UTC) + timedelta(seconds=countdown - 10)
         )
     if countdown >= 5:
         scheduler.add_job(
             countdown_alert(5, chat_id, bot),
             trigger='date',
-            run_date=datetime.utcnow() + timedelta(seconds=countdown - 5)
+            run_date=datetime.utcnow().replace(tzinfo=pytz.UTC) + timedelta(seconds=countdown - 5)
         )
+
+    # Join button (static message)
+    join_btn = [[InlineKeyboardButton("🔹 Join Game", callback_data="join")]]
+    context.bot.send_message(
+        chat_id=chat_id,
+        text="🧩 *Echoes of Aether Begins!*\nClick below to join the match!",
+        reply_markup=InlineKeyboardMarkup(join_btn),
+        parse_mode='Markdown'
+    )
+
+    # Player list message (we will update this on each join)
+    player_msg = context.bot.send_message(
+        chat_id=chat_id,
+        text="📜 *Players Joined:*\n_(Waiting...)_",
+        parse_mode='Markdown'
+    )
+
+    db.set_game_message(chat_id, player_msg.message_id)
 
     # Join button (static message)
     join_btn = [[InlineKeyboardButton("🔹 Join Game", callback_data="join")]]
