@@ -260,9 +260,9 @@ def enable_whisper(chat_id, from_id, to_id):
 def get_inventory(user_id):
     for game in games.values():
         if user_id in game["players"]:
-            return game["players"][user_id]["inventory"]
-    return []
-
+            return game["players"][user_id].get("inventory", {})
+    return {}
+    
 def remove_item(user_id, item):
     inv = get_inventory(user_id)
     if item in inv:
