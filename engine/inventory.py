@@ -6,7 +6,10 @@ def use_item(user_id, item_name):
 
     if item_name not in inventory:
         return "❌ You don’t have that item."
-
+        
+    if db.is_item_on_cooldown(user_id, item_name):
+    return "⏳ That item is still cooling down. Try again later."
+    
     response = "🌀 Nothing happens. Maybe it’s a fake?"
 
     if item_name == "truth_crystal":
@@ -27,6 +30,8 @@ def use_item(user_id, item_name):
             response = "⚙️ You activated the Core Key. Nexus Guild wins!"
         else:
             response = "The Core is not aligned. The key does nothing..."
+    db.set_item_cooldown(user_id, item_name, duration=120)  # 2 mins cooldown 
+    
 def describe_item(item_name):
     descriptions = {
         "relic": "🪙 A mysterious fragment of Aether. Required for certain wins.",
