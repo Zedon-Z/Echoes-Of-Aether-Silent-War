@@ -6,6 +6,11 @@ from storage import authorized
 from telegram.ext import CallbackContext
 from telegram import Bot
 
+def schedule_begin_game(chat_id, bot):
+    ctx = CallbackContext.from_bot(bot)
+    import engine.phases as phases
+    phases.begin_game(ctx, chat_id)
+    
 def create_context(bot: Bot) -> CallbackContext:
     class DummyUpdate:
         effective_chat = None
