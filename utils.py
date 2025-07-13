@@ -1,4 +1,4 @@
-
+import engine.phases as phases
 from functools import wraps
 from telegram import Update
 from telegram.ext import CallbackContext
@@ -18,7 +18,6 @@ def countdown_alert(seconds_left, chat_id, bot):
     
 def schedule_begin_game(chat_id, bot):
     ctx = CallbackContext.from_bot(bot)
-    import engine.phases as phases
     phases.begin_game(ctx, chat_id)
     
 def create_context(bot: Bot) -> CallbackContext:
