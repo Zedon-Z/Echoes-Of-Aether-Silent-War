@@ -102,8 +102,10 @@ def use_succubus(user_id, target_id, username):
     return f"💋 @{username} is seduced and can’t vote tomorrow."
 
 def use_tinkerer(user_id, target_id, username):
-    inv = db.get_inventory(target_id)
-    return f"🧪 @{username}'s inventory: {', '.join(inv) if inv else 'Empty'}"
+    loot_table = ["relic", "truth_crystal", "shadow_ring", "goat_scroll", "core_key"]
+    item = random.choice(loot_table)
+    db.get_inventory(user_id).append(item)
+    return f"🛠️ You tinkered and created a '{item}'!"
 
 def use_whispersmith(user_id, target_id, username):
     db.enable_whisper(db.get_chat_id_by_user(user_id), user_id, target_id)
