@@ -31,3 +31,9 @@ def phase(update: Update, context: CallbackContext):
     else:
         db.set_phase(chat_id, "day")
         update.message.reply_text("🔄 Starting Day Phase...", parse_mode="Markdown")
+def handle_group_message(update: Update, context: CallbackContext):
+    user = update.effective_user
+    text = update.message.text
+
+    # Record for phrase task completion
+    db.record_message(user.id, text)
