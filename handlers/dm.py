@@ -85,7 +85,15 @@ def handle_dm(update: Update, context: CallbackContext):
                     )
                 except:
                     pass
-
+                    
+    elif text.startswith("/alliance"):
+        parts = text.split(maxsplit=1)
+        if len(parts) < 2:
+            safe_reply("Usage: /alliance <your message>")
+        else:
+            db.send_alliance_group_message(update.effective_chat.id, user_id, parts[1], context)
+            safe_reply("📨 Message sent to your alliance.")
+            
     elif text == "/myallies":
         chat_id = update.effective_chat.id
         allies = db.get_allies(chat_id, update.effective_user.id)
