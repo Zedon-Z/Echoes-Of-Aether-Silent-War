@@ -104,7 +104,7 @@ def use_succubus(user_id, target_id, username):
 def use_tinkerer(user_id, target_id, username):
     loot_table = ["relic", "truth_crystal", "shadow_ring", "goat_scroll", "core_key"]
     item = random.choice(loot_table)
-    db.get_inventory(user_id).append(item)
+    db.get_random_item(user_id).append(item)
     return f"🛠️ You tinkered and created a '{item}'!"
 
 def use_whispersmith(user_id, target_id, username):
