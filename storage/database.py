@@ -293,11 +293,22 @@ def set_protection(chat_id, user_id):
 
 def disable_inventory_item(chat_id, user_id):
     if chat_id in games and user_id in games[chat_id]["players"]:
-        inventory = games[chat_id]["players"][user_id].get("inventory", [])
-        if inventory:
-            disabled_item = inventory.pop(0)
-            games[chat_id]["players"][user_id]["disabled_item"] = disabled_item
-
+        inventory = games[chat_id]["players"][user_id].get("inventory", {})
+        if isinstance(inventory, dict):
+            if inventory:
+                # Disable one random item
+                item = random.choice(list(inventory.keys()))
+                inventory[item] -= 1
+                if inventory[item] <= 0:
+                    del inventory[item]
+                games[chat_id]["players"][user_id]["disabled_item"] = item
+                return item
+        elif isinstance(inventory, list):
+            if inventory:
+                item = inventory.pop(0)
+                games[chat_id]["players"][user_id]["disabled_item"] = item
+                return item
+    return None
 def mark_immune(chat_id, user_id):
     if chat_id in games and user_id in games[chat_id]["players"]:
         games[chat_id]["players"][user_id]["immune"] = True
