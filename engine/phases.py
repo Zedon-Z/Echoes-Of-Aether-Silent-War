@@ -125,39 +125,41 @@ def resolve_night(chat_id, context):
     start_day_phase(chat_id, context)
 
 def start_day_phase(chat_id, context: CallbackContext):
-    # Apply night kills
+    # 💀 Apply Night Deaths
     deaths = db.games[chat_id].pop("deaths", [])
     for uid in deaths:
-        db.games[chat_id]["players"][uid]["alive"] = False
+        db.kill_player(chat_id, uid)
         context.bot.send_message(
-        chat_id=chat_id,
-        text=f"💀 @{db.get_username(uid)} was found dead at dawn💀⚰️..."
+            chat_id=chat_id,
+            text=f"💀 @{db.get_username(uid)} was found dead at dawn 💀⚰️..."
         )
+
+    # 🌅 Announce Day Phase
     context.bot.send_animation(
         chat_id,
         animation='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ3FhYm5qNTY2bTg2a2s2cDZ2NzY2dTgwbXhmZm9nZTAyazE0cmJ3byZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oEjHG3rG7HrzUpt7W/giphy.gif'
     )
-    
     context.bot.send_message(
         chat_id=chat_id,
         text=f"🌅 *Day Phase Begins.*\n{get_dawn_story()}\nThe sun rises. Whispers turn to accusations. Discuss and vote wisely.",
         parse_mode='Markdown'
     )
-    
+
+    # ✅ Phase Update
     db.set_phase(chat_id, "day")
     maybe_trigger_plot_twist(chat_id, context)
+    db.reset_votes(chat_id)
+    db.expire_effects(chat_id, phase="day")
 
     players = db.get_alive_players(chat_id)
     usernames = {uid: db.get_username(uid) or f"user{uid}" for uid in players}
 
+    # 🗳️ Voting (Private DMs)
     for user_id in players:
-        vote_buttons = []
-        for target_id in players:
-            if target_id != user_id:
-                vote_buttons.append([
-                    InlineKeyboardButton(f"Vote: {usernames[target_id]}", callback_data=f"vote_{target_id}")
-                ])
-
+        vote_buttons = [
+            [InlineKeyboardButton(f"Vote: {usernames[tid]}", callback_data=f"vote_{tid}")]
+            for tid in players if tid != user_id
+        ]
         try:
             context.bot.send_message(
                 chat_id=user_id,
@@ -168,6 +170,7 @@ def start_day_phase(chat_id, context: CallbackContext):
         except Exception as e:
             print(f"[WARN] Could not send private vote buttons to {user_id}: {e}")
 
+    # 📜 Tasks Allocation
     for user_id in players:
         task_roll = random.choice(["phrase", "protect", "abstain"])
         if task_roll == "phrase":
@@ -176,16 +179,13 @@ def start_day_phase(chat_id, context: CallbackContext):
             assign_task(user_id, "Keep another player alive for 3 rounds.", "guard_3rounds")
         elif task_roll == "abstain":
             assign_task(user_id, "Avoid voting for two days.", "no_vote2")
-
         try:
-            context.bot.send_message(
-                user_id,
-                "📜 A new task has been assigned to you.\nUse /mytasks to view it."
-            )
+            context.bot.send_message(user_id, "📜 A new task has been assigned.\nUse /mytasks to view it.")
         except Exception as e:
-            print(f"Failed to send task to user {user_id}: {e}")
+            print(f"Task DM error to {user_id}: {e}")
 
     context.job_queue.run_once(lambda ctx: tally_votes(chat_id, ctx), 90)
+
 
 def tally_votes(chat_id, context: CallbackContext):
     votes = db.games[chat_id].get("votes", {})
@@ -196,42 +196,29 @@ def tally_votes(chat_id, context: CallbackContext):
     from collections import Counter
     tally = Counter()
 
-    # Apply forced vote or abstain checks
     for voter_id in db.get_alive_players(chat_id):
         voted = voter_id in votes
-        db.check_abstain(voter_id, voted=voted)
-    # Notify allies about their partner's vote
+        db.check_abstain(voter_id, voted)
+
+    # Ally vote notifications
     for voter_id, target_id in votes.items():
         db.notify_allies_vote(chat_id, voter_id, target_id, context)
-    # Count votes
+
+    # Count Valid Votes
     for voter, target in votes.items():
-        if db.is_player_protected(target):
-            continue
-        if db.get_user_role(voter) and db.get_user_role(voter) in ["Succubus", "Courtesan"]:
-            if db.games[chat_id]["players"][voter].get("vote_disabled"):
-                continue
+        if db.is_player_protected(target): continue
+        if db.is_vote_disabled(chat_id, voter): continue
         tally[target] += 1
 
     if not tally:
-        context.bot.send_message(chat_id, "🛡 All targets were protected or votes invalid.")
+        context.bot.send_message(chat_id, "🛡️ All votes were blocked or invalid.")
         return
 
-    # Find top voted
     target_id, count = tally.most_common(1)[0]
-    db.games[chat_id]["players"][target_id]["alive"] = False
-
-    context.bot.send_message(
-        chat_id=chat_id,
-        text=f"⚖️ @{db.get_username(target_id)} has been eliminated with {count} votes."
-    )
-
-    # Wipe vote data
-    db.games[chat_id]["votes"] = {}
-
-    # Finalize tasks
+    db.kill_player(chat_id, target_id)
+    context.bot.send_message(chat_id, f"⚖️ @{db.get_username(target_id)} eliminated with {count} votes.")
+    db.clear_votes(chat_id)
     db.auto_complete_tasks()
-
-    # TODO: transition to night
 
 def handle_usepower(user_id, target_id, chat_id, context: CallbackContext):
     role = db.get_player_role(chat_id, user_id)
