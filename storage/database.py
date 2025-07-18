@@ -173,6 +173,14 @@ def get_user_role(user_id):
     return None
 
 # --- Voting ---
+def force_vote(chat_id, puppet, forced_target):
+    """Force a player to vote a specific target."""
+    if chat_id not in games:
+        return False
+    games[chat_id]["votes"][puppet] = forced_target
+    games[chat_id]["players"][puppet]["forced_vote"] = forced_target
+    return True
+    
 def cast_vote(chat_id, voter_id, target_id):
     if chat_id not in games or voter_id == target_id:
         return False
@@ -220,6 +228,35 @@ def expire_effects(chat_id, phase="day"):
         if phase == "day":
             user.pop("silenced", None)
 # --- Role Powers ---
+def disable_random_item(user_id):
+    inv = get_inventory(user_id)
+    if inv:
+        item = random.choice(list(inv.keys()))
+        inv.pop(item)
+        return item
+    return None
+    
+def corrupt_task(user_id):
+    tasks = get_tasks(user_id)
+    if tasks:
+        task = tasks[0]
+        task["description"] = "❌ [Corrupted] " + task["description"]
+        return True
+    return False
+
+def grant_random_item(chat_id, user_id):
+    items = ["truth_crystal", "shadow_ring", "goat_scroll"]
+    item = random.choice(items)
+    inv = games[chat_id]["players"][user_id].setdefault("inventory", {})
+    inv[item] = inv.get(item, 0) + 1
+    return item
+    
+def protect_player(chat_id, user_id):
+    if chat_id in games and user_id in games[chat_id]["players"]:
+        games[chat_id]["players"][user_id]["protected"] = True
+        return True
+    return False
+
 def disable_player_next_vote(user_id):
     for game in games.values():
         if user_id in game["players"]:
@@ -264,7 +301,13 @@ def disable_inventory_item(chat_id, user_id):
 def mark_immune(chat_id, user_id):
     if chat_id in games and user_id in games[chat_id]["players"]:
         games[chat_id]["players"][user_id]["immune"] = True
+        
+def grant_vote_immunity(chat_id, user_id):
+    games[chat_id]["players"][user_id]["immune"] = True
 
+def is_immune(chat_id, user_id):
+    return games[chat_id]["players"][user_id].get("immune", False)
+    
 def get_relic_count(user_id):
     inv = get_inventory(user_id)
     return inv.count("relic")
@@ -274,7 +317,12 @@ def enable_whisper(chat_id, from_id, to_id):
         if "whispers" not in games[chat_id]:
             games[chat_id]["whispers"] = []
         games[chat_id]["whispers"].append((from_id, to_id))
+def log_death(chat_id, user_id, reason="eliminated"):
+    games[chat_id].setdefault("death_log", []).append({"user": user_id, "reason": reason})
 
+def get_recent_death_logs(chat_id):
+    return games[chat_id].get("death_log", [])[-3:]  # Last 3 deaths
+    
 # --- Tasks / Inventory ---
 def get_inventory(user_id):
     for game in games.values():
