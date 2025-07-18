@@ -199,7 +199,26 @@ def swap_votes(chat_id, user_id_1, user_id_2):
             swapped[voter] = target
     games[chat_id]["votes"] = swapped
     return True
+    
+def kill_player(chat_id, user_id):
+    if chat_id in games and user_id in games[chat_id]["players"]:
+        games[chat_id]["players"][user_id]["alive"] = False
 
+def reset_votes(chat_id):
+    games[chat_id]["votes"] = {}
+
+def clear_votes(chat_id):
+    games[chat_id]["votes"] = {}
+
+def is_vote_disabled(chat_id, user_id):
+    return games[chat_id]["players"].get(user_id, {}).get("vote_disabled", False)
+
+def expire_effects(chat_id, phase="day"):
+    for user in games[chat_id]["players"].values():
+        if "vote_disabled" in user:
+            del user["vote_disabled"]
+        if phase == "day":
+            user.pop("silenced", None)
 # --- Role Powers ---
 def disable_player_next_vote(user_id):
     for game in games.values():
