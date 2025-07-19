@@ -117,10 +117,13 @@ def get_chat_id_by_user(user_id):
     
 def start_new_game(chat_id):
     games[chat_id] = {
-        "phase": "day",
-        "players": {},
-        "votes": {},
-        "deaths": [],
+    "phase": "day",
+    "players": {},
+    "votes": {},
+    "deaths": [],
+    "round": 1,
+    "echo_votes": {},  # ✅ Echo voting system
+    "false_prophecy": False,
     }
 
 # --- Phase Control ---
