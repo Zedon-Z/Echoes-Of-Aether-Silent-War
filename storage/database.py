@@ -534,17 +534,57 @@ def is_item_on_cooldown(user_id, item):
     import time
     return cooldowns.get((user_id, item), 0) > time.time()
 # --- Thread/Story Mechanics ---
+
+# Tracks thread usage, prevents spamming prophecy/story triggers
+thread_usage = {}
+
 def used_thread(user_id):
-    return False
+    return thread_usage.get(user_id, False)
+
+def mark_thread_used(user_id):
+    thread_usage[user_id] = True
+
 
 def check_nexus_control(user_id):
-    return True
+    """
+    Nexus win condition: Check if player holds 3 relics and the core key.
+    """
+    inv = get_inventory(user_id)
+    core_key = "core_key"
+    relics = [item for item in inv if item == "relic"]
+
+    if inv.count(core_key) >= 1 and len(relics) >= 3:
+        return True
+    return False
+
 
 def set_nexus_winner(user_id):
-    pass
+    """
+    Triggers Nexus victory, locks game state.
+    """
+    for chat_id, game in games.items():
+        if user_id in game["players"]:
+            game["nexus_winner"] = user_id
+            game["phase"] = "ended"
+            log_death(chat_id, user_id, reason="⚙️ Nexus Conqueror")
+            print(f"[WIN] Nexus win triggered by {user_id}")
+            return True
+    return False
+
 
 def trigger_goat_prophecy():
-    pass
+    """
+    Special chaotic twist where goat rewrites the endgame scenario.
+    """
+    for chat_id, game in games.items():
+        players = game.get("players", {})
+        for uid, data in players.items():
+            if data.get("role") == "Goat" and data.get("alive"):
+                game.setdefault("goat_prophecy", True)
+                game["phase"] = "prophecy"
+                print(f"[PROPHECY] Goat prophecy activated in {chat_id}")
+                return True
+    return False
 
 game_messages = {}
 
