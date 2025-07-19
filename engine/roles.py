@@ -15,6 +15,25 @@ def assign_roles(chat_id, player_ids, context):
         role = role_pool.pop() if role_pool else "Goat"
         db.assign_role(chat_id, player_id, role)
         assigned[player_id] = role
+        db.games[chat_id]["players"][player_id]["faction"] = faction_map.get(role, "Neutral")
+        
+        faction_map = {
+            "Oracle": "Luminae",
+            "Lumen Priest": "Luminae",
+            "Light Herald": "Luminae",
+            "Shadeblade": "Veilborn",
+            "Succubus": "Veilborn",
+            "Blight Whisperer": "Veilborn",
+            "Puppetmaster": "Nexus",
+            "Trickster": "Nexus",
+            "Saboteur": "Nexus",
+            "Ascended": "Rogue",
+            "Courtesan": "Rogue",
+            "Archivist": "Rogue",
+            "Tinkerer": "Rogue",
+            "Whispersmith": "Neutral",
+            "Goat": "Goat"
+            }
 
         # ✅ Send role to player privately
         role_descriptions = {
