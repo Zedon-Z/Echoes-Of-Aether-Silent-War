@@ -91,3 +91,12 @@ def handle_callback(update: Update, context: CallbackContext):
         result = use_item(user_id, item)
         query.answer()
         query.edit_message_text(f"{result}")
+    elif data.startswith("echo_vote_"):
+        choice = data.split("_")[-1]
+        db.set_echo_vote(chat_id, user_id, choice)
+        query.answer(f"✅ You chose: {choice}")
+        query.edit_message_text(f"You voted for *{choice}*", parse_mode="Markdown")
+    elif data.startswith("whisper_"):
+        target_id = int(data.split("_")[1])
+        db.enable_whisper(chat_id, user_id, target_id)
+        query.answer("✅ Whisper enabled.")
