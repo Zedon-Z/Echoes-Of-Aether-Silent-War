@@ -174,7 +174,9 @@ def get_user_role(user_id):
         if user_id in game["players"]:
             return game["players"][user_id].get("role")
     return None
-
+    
+def increment_round(chat_id):
+    games[chat_id]["round"] += 1
 # --- Voting ---
 def force_vote(chat_id, puppet, forced_target):
     """Force a player to vote a specific target."""
@@ -589,10 +591,34 @@ def trigger_goat_prophecy():
                 return True
     return False
 
+def resolve_goat_prophecy(chat_id):
+    if games[chat_id].get("goat_prophecy"):
+        # For example, instant chaos kill random alive
+        import random
+        alive = get_alive_players(chat_id)
+        if alive:
+            unlucky = random.choice(alive)
+            process_death(chat_id, unlucky, reason="🐐 Goat Prophecy Wrath")
+        games[chat_id]["phase"] = "day"
+        
 def set_echo_vote(chat_id, user_id, choice):
     if chat_id in games and user_id in games[chat_id]["players"]:
         games[chat_id]["echo_votes"][user_id] = choice
 
 def get_echo_votes(chat_id):
     return games[chat_id].get("echo_votes", {})
+
+def get_dominant_echo_vote(chat_id):
+    from collections import Counter
+    votes = get_echo_votes(chat_id).values()
+    if not votes:
+        return None
+    counter = Counter(votes)
+    dominant, count = counter.most_common(1)[0]
+    return dominant
+
+def process_death(chat_id, user_id, reason="eliminated"):
+    if chat_id in games and user_id in games[chat_id]["players"]:
+        games[chat_id]["players"][user_id]["alive"] = False
+        log_death(chat_id, user_id, reason)
 
