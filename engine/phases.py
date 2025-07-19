@@ -219,6 +219,11 @@ def tally_votes(chat_id, context: CallbackContext):
     context.bot.send_message(chat_id, f"⚖️ @{db.get_username(target_id)} eliminated with {count} votes.")
     db.clear_votes(chat_id)
     db.auto_complete_tasks()
+    
+
+    # ADD THIS:
+    from engine.win_conditions import check_win_conditions
+    check_win_conditions(chat_id, context)
 
 def handle_usepower(user_id, target_id, chat_id, context: CallbackContext):
     role = db.get_player_role(chat_id, user_id)
