@@ -248,3 +248,35 @@ def handle_usepower(user_id, target_id, chat_id, context: CallbackContext):
         db.apply_effect(chat_id, target_id, "cursed")
         context.bot.send_message(chat_id, f"🕷️ Blight spreads silently... a player is now cursed.", parse_mode='Markdown')
     return True
+    
+def trigger_false_prophecy(chat_id, context):
+    prophecy_lines = [
+        "🌫️ *A False Vision descends...* The sky whispers lies.",
+        "🪞 *Reality fractures...* Not all victories are as they seem.",
+    ]
+    context.bot.send_message(chat_id, random.choice(prophecy_lines), parse_mode="Markdown")
+    db.games[chat_id]["false_prophecy"] = True
+
+def reveal_false_prophecy(chat_id, user_id, context):
+    if db.get_player_role(chat_id, user_id) in ["Oracle", "Light Herald"]:
+        context.bot.send_message(user_id, "🔮 You see through the illusion. A false victory looms.")
+
+def start_final_echo(chat_id, context):
+    context.bot.send_message(chat_id, "🌌 *The Core fractures. The Final Echo begins.* Choose your destiny in private.", parse_mode="Markdown")
+    players = db.get_alive_players(chat_id)
+    options = ["Save the Core", "Destroy the Core", "Escape the Core"]
+    buttons = [[InlineKeyboardButton(opt, callback_data=f"echo_{opt.lower().replace(' ', '_')}")] for opt in options]
+    for uid in players:
+        context.bot.send_message(uid, "What will you choose?", reply_markup=InlineKeyboardMarkup(buttons))
+
+def resolve_final_echo(chat_id, context):
+    votes = db.games[chat_id].get("echo_votes", {})
+    counts = Counter(votes.values())
+    dominant = counts.most_common(1)[0][0] if counts else None
+    if dominant == "destroy_the_core":
+        context.bot.send_message(chat_id, "🔥 *The Core shatters! All alliances crumble.* Only traitors claim glory.")
+    elif dominant == "save_the_core":
+        context.bot.send_message(chat_id, "🛡️ *The Core stabilizes. Purified forces claim Aether's future.*")
+    elif dominant == "escape_the_core":
+        context.bot.send_message(chat_id, "🌫️ *You escape the endless loop, vanishing into myth.*")
+
