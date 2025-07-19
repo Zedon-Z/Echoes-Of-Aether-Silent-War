@@ -90,6 +90,8 @@ def start_night_phase(chat_id, context: CallbackContext):
     )
 
     db.set_phase(chat_id, "night")
+    # ✅ Optional: Clean night-only buffs
+    db.expire_effects(chat_id, phase="night")
     alive_players = db.get_alive_players(chat_id)
     usernames = {uid: db.get_username(uid) or f"user{uid}" for uid in alive_players}
 
