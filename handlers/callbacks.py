@@ -47,7 +47,7 @@ def handle_callback(update: Update, context: CallbackContext):
     
         if user_id == target_id:
             query.answer("❌ You cannot vote for yourself.")
-        return
+            return
 
         if db.cast_vote(chat_id, user_id, target_id):
             query.answer("✅ Your vote has been recorded.")
