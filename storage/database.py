@@ -589,5 +589,10 @@ def trigger_goat_prophecy():
                 return True
     return False
 
-game_messages = {}
+def set_echo_vote(chat_id, user_id, choice):
+    if chat_id in games and user_id in games[chat_id]["players"]:
+        games[chat_id]["echo_votes"][user_id] = choice
+
+def get_echo_votes(chat_id):
+    return games[chat_id].get("echo_votes", {})
 
