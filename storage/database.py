@@ -222,11 +222,30 @@ def is_vote_disabled(chat_id, user_id):
     return games[chat_id]["players"].get(user_id, {}).get("vote_disabled", False)
 
 def expire_effects(chat_id, phase="day"):
-    for user in games[chat_id]["players"].values():
-        if "vote_disabled" in user:
-            del user["vote_disabled"]
+    """
+    Removes temporary effects like protection, vote_disable, immune, cursed etc.
+    Phase-based expiration: clears certain effects only after day or night.
+    """
+    if chat_id not in games:
+        return
+
+    for user_id, data in games[chat_id]["players"].items():
+        # Protection & Immunity expire after night (before day starts)
         if phase == "day":
-            user.pop("silenced", None)
+            data.pop("protected", None)
+            data.pop("immune", None)
+
+        # Vote blocks, charm expire after day (before night starts)
+        if phase == "night":
+            data.pop("vote_disabled", None)
+            if "effects" in data:
+                # Remove charm, silence, and other day-only effects
+                data["effects"] = [e for e in data["effects"] if e not in ["charmed", "silenced"]]
+                if not data["effects"]:
+                    data.pop("effects", None)
+
+        # Clean disabled items tracker (for sabotage or effects lasting 1 round)
+        data.pop("disabled_item", None)
 # --- Role Powers ---
 def disable_random_item(user_id):
     inv = get_inventory(user_id)
