@@ -38,27 +38,34 @@ def run_bot():
         dp.add_handler(CommandHandler("flee", commands.flee))
         dp.add_handler(CommandHandler("cancelgame", commands.cancel_game))
         dp.add_handler(CommandHandler("extendtime", commands.extend_time))
-        dp.add_handler(CommandHandler("forcestart", commands.force_start))  # ✅ Added
+        dp.add_handler(CommandHandler("forcestart", commands.force_start))
         dp.add_handler(MessageHandler(Filters.text & Filters.group, game.handle_group_message))
         dp.add_handler(CallbackQueryHandler(callbacks.handle_callback))
         dp.add_handler(MessageHandler(Filters.private & Filters.text, dm.handle_dm))
 
-        PORT = int(os.environ.get("PORT", 8443))
-        APP_URL = os.environ.get("APP_URL")
+        set_bot_commands(updater)
 
-        set_bot_commands(updater)  # ✅ Register bot commands
+        APP_URL = os.getenv("APP_URL")
+        PORT = int(os.getenv("PORT", 8443))
 
-        updater.start_webhook(
-            listen="0.0.0.0",
-            port=PORT,
-            url_path=TOKEN,
-            webhook_url=f"{APP_URL}/{TOKEN}"
-        )
+        if APP_URL:
+            print(f"📡 Starting with webhook: {APP_URL}")
+            updater.start_webhook(
+                listen="0.0.0.0",
+                port=PORT,
+                url_path=TOKEN,
+                webhook_url=f"{APP_URL}/{TOKEN}"
+            )
+        else:
+            print("🟢 Starting in polling mode (local)")
+            updater.start_polling()
 
         updater.idle()
+
     except Exception as e:
         print(f"[ERROR] Bot failed to start: {e}")
 
+        
 if __name__ == "__main__":
     Thread(target=run_bot).start()
     try:
