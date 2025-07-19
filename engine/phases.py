@@ -14,6 +14,8 @@ active_vote_buttons = {}
 pending_powers = {}
 
 def maybe_trigger_plot_twist(chat_id, context: CallbackContext):
+    if db.get_round(chat_id) == 3: trigger_false_prophecy(chat_id, context)
+        
     from random import choice, shuffle
     count = twist_counter.get(chat_id, 0) + 1
     twist_counter[chat_id] = count
@@ -148,6 +150,9 @@ def start_day_phase(chat_id, context: CallbackContext):
     )
 
     # ✅ Phase Update
+    if db.get_round(chat_id) >= 4: 
+        start_final_echo(chat_id, context)
+    reveal_false_prophecy(chat_id, context)
     db.set_phase(chat_id, "day")
     maybe_trigger_plot_twist(chat_id, context)
     db.reset_votes(chat_id)
@@ -187,6 +192,7 @@ def start_day_phase(chat_id, context: CallbackContext):
             print(f"Task DM error to {user_id}: {e}")
 
     context.job_queue.run_once(lambda ctx: tally_votes(chat_id, ctx), 90)
+    db.increment_round(chat_id)
 
 
 def tally_votes(chat_id, context: CallbackContext):
