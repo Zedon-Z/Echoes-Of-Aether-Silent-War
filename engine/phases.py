@@ -150,6 +150,7 @@ def start_day_phase(chat_id, context: CallbackContext):
     )
 
     # ✅ Phase Update
+    db.increment_round(chat_id)
     if db.get_round(chat_id) >= 4: 
         start_final_echo(chat_id, context)
     reveal_false_prophecy(chat_id, context)
@@ -192,8 +193,7 @@ def start_day_phase(chat_id, context: CallbackContext):
             print(f"Task DM error to {user_id}: {e}")
 
     context.job_queue.run_once(lambda ctx: tally_votes(chat_id, ctx), 90)
-    db.increment_round(chat_id)
-
+    
 
 def tally_votes(chat_id, context: CallbackContext):
     votes = db.games[chat_id].get("votes", {})
