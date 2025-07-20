@@ -8,6 +8,23 @@ def assign_roles(chat_id, player_ids, context):
         "Light Herald", "Ascended", "Saboteur", "Courtesan",
         "Archivist", "Puppetmaster", "Trickster", "Goat"
     ]
+    faction_map = {
+    "Shadeblade": "Shadowborn",
+    "Oracle": "Seers",
+    "Succubus": "Shadowborn",
+    "Tinkerer": "Nexus",
+    "Whispersmith": "Neutral",
+    "Blight": "Shadowborn",
+    "Lumen Priest": "Seers",
+    "Light Herald": "Seers",
+    "Saboteur": "Nexus",
+    "Courtesan": "Neutral",
+    "Puppetmaster": "Neutral",
+    "Trickster": "Neutral",
+    "Ascended": "Neutral",
+    "Archivist": "Neutral",
+    "Goat": "Goat"
+    }
     random.shuffle(role_pool)
     assigned = {}
 
