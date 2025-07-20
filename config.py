@@ -1,10 +1,10 @@
 import os
 from dotenv import load_dotenv
-from telegram.ext import Updater
+
+# ✅ Load environment variables
 load_dotenv()
 
-updater = Updater(token=os.getenv("TOKEN"), use_context=True)
-
-
+# ✅ Static Config Values
+TOKEN = os.getenv("TOKEN")
 BOT_OWNER_ID = int(os.getenv("BOT_OWNER_ID", 1378500453))
-APP_URL = os.getenv("APP_URL")
+APP_URL = os.getenv("APP_URL", None)
