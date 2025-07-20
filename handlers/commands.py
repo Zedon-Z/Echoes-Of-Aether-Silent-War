@@ -1,4 +1,4 @@
-
+from engine.animation import dark_fantasy_animation
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CallbackContext
 from storage import database as db
@@ -188,6 +188,8 @@ def deauthorize(update: Update, context: CallbackContext):
     else:
         update.message.reply_text("ℹ️ This group wasn't authorized.")
 
+from engine.animation import dark_fantasy_animation
+
 def cancel_game(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
 
@@ -196,8 +198,16 @@ def cancel_game(update: Update, context: CallbackContext):
         return
 
     db.cancel_game(chat_id)
-    update.message.reply_text("🚫 The game has been *cancelled*. You can /startgame again if you wish.", parse_mode='Markdown')
 
+    # Send initial cancellation message
+    update.message.reply_text("🚫 *The game has been cancelled.* Watch closely...", parse_mode='Markdown')
+
+    # Trigger dark animation
+    try:
+        dark_fantasy_animation(context.bot, chat_id)
+    except Exception as e:
+        print(f"[WARN] Failed to run animation: {e}")
+        
 def has_game_started(chat_id):
     return games.get(chat_id, {}).get("started", False)
 
