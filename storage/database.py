@@ -1,5 +1,6 @@
 # NOTE: For production, replace this with persistent DB
-
+game_messages = {}  # <- ✅ Add this
+# rest of your variables
 games = {}
 game_start_times = {}
 timers = {}
