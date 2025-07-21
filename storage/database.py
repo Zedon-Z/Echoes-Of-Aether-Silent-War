@@ -623,3 +623,7 @@ def process_death(chat_id, user_id, reason="eliminated"):
         games[chat_id]["players"][user_id]["alive"] = False
         log_death(chat_id, user_id, reason)
 
+def get_phase(chat_id):
+    if chat_id not in games:
+        return "day"  # fallback phase
+    return games[chat_id].get("phase", "day")
