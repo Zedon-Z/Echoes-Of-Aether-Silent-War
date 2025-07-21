@@ -1,5 +1,7 @@
-
 import random
+from collections import Counter
+from engine.animation import lumen_priest_animation
+from engine.win_conditions import check_win_conditions
 from storage import database as db
 from engine.roles import assign_roles
 from engine.tasks import assign_task
@@ -194,28 +196,29 @@ def start_day_phase(chat_id, context: CallbackContext):
 
     context.job_queue.run_once(lambda ctx: tally_votes(chat_id, ctx), 90)
     
-
 def tally_votes(chat_id, context: CallbackContext):
     votes = db.games[chat_id].get("votes", {})
     if not votes:
         context.bot.send_message(chat_id, "❌ No votes recorded.")
         return
 
-    from collections import Counter
     tally = Counter()
 
+    # Track abstain task progress
     for voter_id in db.get_alive_players(chat_id):
         voted = voter_id in votes
         db.check_abstain(voter_id, voted)
 
-    # Ally vote notifications
+    # Notify allies
     for voter_id, target_id in votes.items():
         db.notify_allies_vote(chat_id, voter_id, target_id, context)
 
-    # Count Valid Votes
+    # Count valid votes (skip protected targets & disabled voters)
     for voter, target in votes.items():
-        if db.is_player_protected(target): continue
-        if db.is_vote_disabled(chat_id, voter): continue
+        if db.is_player_protected(target):
+            continue
+        if db.is_vote_disabled(chat_id, voter):
+            continue
         tally[target] += 1
 
     if not tally:
@@ -223,14 +226,26 @@ def tally_votes(chat_id, context: CallbackContext):
         return
 
     target_id, count = tally.most_common(1)[0]
-    db.kill_player(chat_id, target_id)
-    context.bot.send_message(chat_id, f"⚖️ @{db.get_username(target_id)} eliminated with {count} votes.")
-    db.clear_votes(chat_id)
-    db.auto_complete_tasks()
-    
+    target_username = db.get_username(target_id)
 
-    # ADD THIS:
-    from engine.win_conditions import check_win_conditions
+    if db.is_player_protected(target_id):
+        lumen_priest_animation(context.bot, chat_id, target_username)
+        context.bot.send_message(
+            chat_id,
+            f"🛡️ @{target_username} was protected! No one is eliminated this round."
+        )
+        db.clear_votes(chat_id)
+        db.auto_complete_tasks()
+    else:
+        db.kill_player(chat_id, target_id)
+        context.bot.send_message(
+            chat_id,
+            f"⚖️ @{target_username} eliminated with {count} votes."
+        )
+        db.clear_votes(chat_id)
+        db.auto_complete_tasks()
+
+    # ✅ Only one check for winner after the round resolves
     check_win_conditions(chat_id, context)
 
 def handle_usepower(user_id, target_id, chat_id, context: CallbackContext):
