@@ -627,3 +627,8 @@ def get_phase(chat_id):
     if chat_id not in games:
         return "day"  # fallback phase
     return games[chat_id].get("phase", "day")
+    
+def get_round(chat_id):
+    if chat_id in games:
+        return games[chat_id].get("round", 1)
+    return 1
