@@ -1,5 +1,6 @@
 import time
-
+from telegram import Bot
+#cancel game
 def dark_fantasy_animation(bot, chat_id):
     frames = [
         "🌑 *The sky turns pitch black...*",
@@ -18,3 +19,44 @@ def dark_fantasy_animation(bot, chat_id):
             bot.edit_message_text(chat_id=chat_id, message_id=msg.message_id, text=frame, parse_mode="Markdown")
         except Exception as e:
             print(f"[WARN] Animation edit failed: {e}")
+#Protected
+
+def lumen_priest_animation(bot: Bot, chat_id, target_username):
+    main_text = f"🛐 *A sacred aura shields @{target_username} from incoming harm...*"
+    second_lines = [
+        "🌙 *The darkness recoils...*",
+        "⚡ *A burst of light pushes through the void...*",
+        "💫 *Celestial chants echo in the distance...*",
+        "🌄 *Hope returns to the hearts of the living...*"
+    ]
+
+    # Start with empty message
+    msg = bot.send_message(chat_id=chat_id, text=".", parse_mode="Markdown")
+
+    # Animate main line letter by letter
+    display_text = ""
+    for char in main_text:
+        display_text += char
+        try:
+            bot.edit_message_text(
+                chat_id=chat_id,
+                message_id=msg.message_id,
+                text=display_text,
+                parse_mode="Markdown"
+            )
+        except Exception as e:
+            print(f"[WARN] Main line animation failed: {e}")
+        time.sleep(0.04)
+
+    # Animate second line frame by frame
+    for line in second_lines:
+        try:
+            bot.edit_message_text(
+                chat_id=chat_id,
+                message_id=msg.message_id,
+                text=f"{main_text}\n{line}",
+                parse_mode="Markdown"
+            )
+        except Exception as e:
+            print(f"[WARN] Secondary animation failed: {e}")
+        time.sleep(1.5)
