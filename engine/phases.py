@@ -1,7 +1,7 @@
 import random
 from collections import Counter
 from engine.animation import lumen_priest_animation
-from engine.win_conditions import check_win_conditions
+from engine.win import check_for_winner
 from storage import database as db
 from engine.roles import assign_roles
 from engine.tasks import assign_task
