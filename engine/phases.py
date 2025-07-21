@@ -215,7 +215,7 @@ def tally_votes(chat_id, context: CallbackContext):
 
     # Count valid votes (skip protected targets & disabled voters)
     for voter, target in votes.items():
-        if db.is_player_protected(target):
+        if db.is_player_protected(target) or db.is_immune(chat_id, target):
             continue
         if db.is_vote_disabled(chat_id, voter):
             continue
