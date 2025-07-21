@@ -1,3 +1,4 @@
+from engine.phases import start_day_phase, start_night_phase   #temp
 from engine.animation import dark_fantasy_animation
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CallbackContext
@@ -214,3 +215,22 @@ def has_game_started(chat_id):
 def mark_game_started(chat_id):
     if chat_id in games:
         games[chat_id]["started"] = True
+#Temprory
+
+
+def next_phase(update, context):
+    chat_id = update.effective_chat.id
+    current_phase = db.get_phase(chat_id)
+
+    if not db.is_game_active(chat_id):
+        update.message.reply_text("⚠️ No active game running.")
+        return
+
+    if current_phase == "day":
+        start_night_phase(chat_id, context)
+        update.message.reply_text("🌙 Transitioned to Night Phase manually.")
+    elif current_phase == "night":
+        start_day_phase(chat_id, context)
+        update.message.reply_text("🌅 Transitioned to Day Phase manually.")
+    else:
+        update.message.reply_text("⚠️ Unknown phase state.")
