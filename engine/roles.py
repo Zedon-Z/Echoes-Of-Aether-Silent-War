@@ -1,4 +1,6 @@
 import random
+from engine import dagger_prophet_success_animation
+from engine import dagger_prophet_fail_message
 from storage import database as db
 
 def assign_roles(chat_id, player_ids, context):
