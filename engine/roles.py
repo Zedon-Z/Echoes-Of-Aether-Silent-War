@@ -188,3 +188,43 @@ def use_archivist(user_id, target_id, username):
 
 def use_goat(user_id, target_id, username):
     return "🐐 You are the Goat. Bide your time and survive."
+#NewRoles
+def use_silent_fang(user_id, target_id, username):
+    chat_id = db.get_chat_id_by_user(user_id)
+    if db.is_player_protected(target_id):
+        return f"🔪 @{username} is protected. Your blade couldn't reach."
+    db.mark_player_for_death(target_id)
+    return f"🔪 You silently targeted @{username} for death."
+
+def use_shadow_fang(user_id, target_id, username):
+    db.double_vote_power(user_id)
+    return "🌑 Your vote holds double weight this round."
+
+def use_blood_alchemist(user_id, target_id, username):
+    relic = db.extract_relic_from_recent_death()
+    if relic:
+        db.give_item(user_id, relic)
+        return f"🩸 You forged a relic from the blood of the fallen: {relic}."
+    return "🩸 No fresh corpse to extract power from."
+
+def use_echo_seer(user_id, target_id, username):
+    echoes = db.get_recent_target_history(target_id)
+    if not echoes:
+        return f"🪞 No echoes trail @{username}. Nothing to reveal."
+    return f"🪞 Echoes reveal @{username}'s past targets: {', '.join(echoes)}"
+
+def use_echo_hunter(user_id, target_id, username):
+    if db.get_alive_count() <= 4:
+        db.mark_player_for_death(target_id)
+        return f"🎯 You hunted @{username} in the chaos. They will fall tonight."
+    return "🎯 The shadows are not yet thin enough to hunt freely."
+
+def use_dagger_prophet(user_id, target_id, username):
+    db.set_death_prediction(user_id, target_id)
+    return f"🗡 You’ve whispered a prophecy: @{username} shall perish. If true, you’ll be rewarded."
+
+def use_kiss_of_eclipse(user_id, target_id, username):
+    db.mark_nsfl(user_id)
+    db.disable_vote_and_task(target_id)
+    return f"💋 You seduced @{username}. They are silenced for one round."
+    
