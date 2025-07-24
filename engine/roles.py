@@ -206,13 +206,13 @@ def use_dagger_prophet(user_id, target_id, username):
 
     if prediction == target_id:
         # Prediction correct — dramatic reveal
-        asyncio.create_task(dagger_prophet_success_animation(chat_id, username, db.get_bot()))
+        dagger_prophet_success_animation(context.bot, chat_id, target_username)
         db.mark_player_for_death(target_id)
         db.clear_prediction(chat_id)
         return f"💀 Your prophecy is fulfilled. @{username} shall perish."
     else:
         # Prediction failed
-        dagger_prophet_fail_message(chat_id, db.get_bot())
+        dagger_prophet_fail_message(context.bot, chat_id)
         db.clear_prediction(chat_id)
         return "❌ Your prophecy failed. The blade hungers still."
 
