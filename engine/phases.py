@@ -1,5 +1,6 @@
 import random
 from collections import Counter
+from engine.animation import send_alive_players_animation
 from engine.animation import lumen_priest_animation
 from engine.win import check_for_winner
 from storage import database as db
@@ -145,11 +146,7 @@ def start_day_phase(chat_id, context: CallbackContext):
         chat_id,
         animation='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ3FhYm5qNTY2bTg2a2s2cDZ2NzY2dTgwbXhmZm9nZTAyazE0cmJ3byZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oEjHG3rG7HrzUpt7W/giphy.gif'
     )
-    context.bot.send_message(
-        chat_id=chat_id,
-        text=f"🌅 *Day Phase Begins.*\n{get_dawn_story()}\nThe sun rises. Whispers turn to accusations. Discuss and vote wisely.",
-        parse_mode='Markdown'
-    )
+    send_alive_players_animation(chat_id, context.bot)
 
     # ✅ Phase Update
     db.increment_round(chat_id)
