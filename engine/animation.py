@@ -114,3 +114,26 @@ def send_alive_players_animation(chat_id, bot):
         time.sleep(0.7)
         text = f"{title}\n\n{dramatic_intro}\n" + "\n".join([f"🔹 {u}" for u in usernames[:i]])
         bot.edit_message_text(chat_id=chat_id, message_id=msg.message_id, text=text, parse_mode="Markdown")
+#CancelAnimation
+def cancel_game_animation(bot, chat_id):
+    from time import sleep
+
+    frames = [
+        "🌒 *Whispers falter...*",
+        "🔮 *The Circle of Fate trembles...*",
+        "🩸 *Sigils burn. Candles snuff out.*",
+        "🌫️ *Aether unravels... the ritual is broken.*",
+        "📜 *All echoes are silenced...*",
+        "❌ *The game has been cancelled.*"
+    ]
+
+    try:
+        msg = bot.send_message(chat_id=chat_id, text=frames[0], parse_mode="Markdown")
+        message_id = msg.message_id
+
+        for frame in frames[1:]:
+            sleep(1.4)
+            bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=frame, parse_mode="Markdown")
+
+    except Exception as e:
+        print(f"[WARN] Cancel animation failed: {e}")
