@@ -1,5 +1,6 @@
 import random
 from collections import Counter
+from engine.animation import dark_fantasy_animation
 from engine.animation import send_alive_players_animation
 from engine.animation import lumen_priest_animation
 from engine.win import check_for_winner
@@ -87,7 +88,7 @@ def start_night_phase(chat_id, context: CallbackContext):
         chat_id,
         animation='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGRvdzJ1NGdjYzhrYW14M2w4bXBoOXEyZ2Z6aW5nNXRocjByNmp4cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/VbnUQpnihPSIgIXuZv/giphy.gif'
     )
-
+    dark_fantasy_animation(context.bot, chat_id)
     context.bot.send_message(
         chat_id=chat_id,
         text=f"🌙 *Night falls.*\n{get_night_story()}\nEach role must act in shadows.",
