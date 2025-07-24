@@ -60,3 +60,30 @@ def lumen_priest_animation(bot: Bot, chat_id, target_username):
         except Exception as e:
             print(f"[WARN] Secondary animation failed: {e}")
         time.sleep(1.5)
+#DeathPrediction
+
+def dagger_prophet_success_animation(bot, chat_id, username):
+    frames = [
+        "🔮 *The dagger trembles...*",
+        "🩸 *The cursed name burns bright...*",
+        f"💀 *The prophecy unfolds — the blade claims @{username}!*"
+    ]
+
+    try:
+        msg = bot.send_message(chat_id, text=frames[0], parse_mode="Markdown")
+        message_id = msg.message_id
+        for frame in frames[1:]:
+            time.sleep(1.5)
+            bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=frame, parse_mode="Markdown")
+    except Exception as e:
+        print(f"[WARN] Dagger Prophet success animation failed: {e}")
+
+def dagger_prophet_fail_message(bot, chat_id):
+    try:
+        bot.send_message(
+            chat_id,
+            "❌ *Death Prediction Failed!* Try again after drinking 🐐 *Goat Milk of Foresight*...",
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        print(f"[WARN] Failed to send dagger fail message: {e}")
