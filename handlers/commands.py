@@ -1,5 +1,5 @@
 from engine.phases import start_day_phase, start_night_phase   #temp
-from engine.animation import dark_fantasy_animation
+from engine.animation import cancel_game_animation
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CallbackContext
 from storage import database as db
@@ -205,7 +205,7 @@ def cancel_game(update: Update, context: CallbackContext):
 
     # Trigger dark animation
     try:
-        dark_fantasy_animation(context.bot, chat_id)
+        cancel_game_animation(context.bot, chat_id)
     except Exception as e:
         print(f"[WARN] Failed to run animation: {e}")
         
