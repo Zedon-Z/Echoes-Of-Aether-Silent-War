@@ -3,9 +3,8 @@ from storage import database as db
 
 def assign_roles(chat_id, player_ids, context):
     role_pool = [
-        "Shadeblade", "Oracle", "Succubus", "Tinkerer",
-        "Whispersmith", "Blight Whisperer", "Lumen Priest",
-        "Light Herald", "Ascended", "Saboteur", "Courtesan",
+        "Shadeblade", "Oracle", "Tinkerer", "Lumen Priest",
+        "Ascended", "Saboteur", "Kiss Of Eclipse","Succubus",
         "Archivist", "Puppetmaster", "Trickster", "Goat"
     ]
     faction_map = {
@@ -37,18 +36,18 @@ def assign_roles(chat_id, player_ids, context):
         faction_map = {
             "Oracle": "Luminae",
             "Lumen Priest": "Luminae",
-            "Light Herald": "Luminae",
+            
             "Shadeblade": "Veilborn",
             "Succubus": "Veilborn",
-            "Blight Whisperer": "Veilborn",
+            
             "Puppetmaster": "Nexus",
             "Trickster": "Nexus",
             "Saboteur": "Nexus",
             "Ascended": "Rogue",
-            "Courtesan": "Rogue",
-            "Archivist": "Rogue",
+            "Kiss Of Eclipse": "Rogue",
+            
             "Tinkerer": "Rogue",
-            "Whispersmith": "Neutral",
+            "Archivist": "Rogue",
             "Goat": "Goat"
             }
 
@@ -60,14 +59,12 @@ def assign_roles(chat_id, player_ids, context):
             "Puppetmaster": "🧵 Control someone’s vote.",
             "Trickster": "🎭 Swap your vote with another.",
             "Saboteur": "🔧 Disable an item from a player.",
-            "Blight Whisperer": "☠️ Curse someone's task.",
+            
             "Tinkerer": "🔨 Craft a random item.",
             "Lumen Priest": "🛡️ Shield someone from elimination.",
-            "Light Herald": "🌟 Reveal someone’s alignment.",
             "Ascended": "✨ Become immune to 1 vote.",
-            "Courtesan": "💋 Silence someone for 1 round.",
-            "Archivist": "📚 Reveal data from last death.",
-            "Whispersmith": "💬 Whisper secret messages.",
+            "Kiss Of Eclipse": "💋🌒 Silence someone for 1 round.",
+            "Archivist" : "📚 Reveal data from last death.",
             "Goat": "🐐 No power, only vibes."
             }
         description = role_descriptions.get(role, "No description available.")
@@ -100,18 +97,18 @@ def use_power(user_id, target_username):
     role_actions = {
         "Shadeblade": use_shadeblade,
         "Oracle": use_oracle,
-        "Succubus": use_succubus,
+        "Archivist": use_archivist,
         "Tinkerer": use_tinkerer,
-        "Whispersmith": use_whispersmith,
-        "Blight Whisperer": use_blight,
+        
+        
         "Lumen Priest": use_lumen_priest,
-        "Light Herald": use_light_herald,
+        
         "Saboteur": use_saboteur,
-        "Courtesan": use_courtesan,
+        "Kiss Of Eclipse": use_kiss_of_eclipse,
         "Puppetmaster": use_puppetmaster,
         "Trickster": use_trickster,
         "Ascended": use_ascended,
-        "Archivist": use_archivist,
+        
         "Goat": use_goat
     }
 
@@ -133,10 +130,6 @@ def use_oracle(user_id, target_id, username):
     faction = db.get_player_faction(target_id)
     return f"🔮 Oracle's Vision: @{username} is part of *{faction}*."
 
-def use_succubus(user_id, target_id, username):
-    db.disable_player_next_vote(target_id)
-    return f"💋 @{username} is seduced and can’t vote tomorrow."
-
 def use_tinkerer(user_id, target_id, username):
     loot_table = ["relic", "truth_crystal", "shadow_ring", "goat_scroll", "core_key"]
     item = random.choice(loot_table)
@@ -144,29 +137,13 @@ def use_tinkerer(user_id, target_id, username):
     inventory[item] = inventory.get(item, 0) + 1
     return f"🛠️ You tinkered and created a '{item}'!"
     
-def use_whispersmith(user_id, target_id, username):
-    db.enable_whisper(db.get_chat_id_by_user(user_id), user_id, target_id)
-    return f"📝 You may now whisper to @{username}."
-
-def use_blight(user_id, target_id, username):
-    db.curse_alignment(db.get_chat_id_by_user(user_id), target_id)
-    return f"☣️ You corrupted @{username}'s faction alignment."
-
 def use_lumen_priest(user_id, target_id, username):
     db.set_protection(db.get_chat_id_by_user(user_id), target_id)
     return f"🛐 @{username} was cleansed and shielded from harm."
 
-def use_light_herald(user_id, target_id, username):
-    alignment = db.reveal_alignment(db.get_chat_id_by_user(user_id), target_id)
-    return f"🌟 @{username}'s aura is *{alignment}*."
-
 def use_saboteur(user_id, target_id, username):
     db.disable_inventory_item(db.get_chat_id_by_user(user_id), target_id)
     return f"🧨 You sabotaged one of @{username}'s items."
-
-def use_courtesan(user_id, target_id, username):
-    db.disable_player_next_vote(target_id)
-    return f"💃 @{username} is distracted and cannot vote next round."
 
 def use_puppetmaster(user_id, target_id, username):
     db.force_vote(db.get_chat_id_by_user(user_id), target_id, user_id)
@@ -221,10 +198,10 @@ def use_echo_hunter(user_id, target_id, username):
 
 def use_dagger_prophet(user_id, target_id, username):
     db.set_death_prediction(user_id, target_id)
-    return f"🗡 You’ve whispered a prophecy: @{username} shall perish. If true, you’ll be rewarded."
+    return f"📿 You inscribe a death prophecy upon @{target_username}....If true, you’ll be rewarded."
 
 def use_kiss_of_eclipse(user_id, target_id, username):
     db.mark_nsfl(user_id)
-    db.disable_vote_and_task(target_id)
+    db.disable_player_next_vote(target_id)
     return f"💋 You seduced @{username}. They are silenced for one round."
     
