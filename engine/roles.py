@@ -197,8 +197,24 @@ def use_echo_hunter(user_id, target_id, username):
     return "🎯 The shadows are not yet thin enough to hunt freely."
 
 def use_dagger_prophet(user_id, target_id, username):
-    db.set_death_prediction(user_id, target_id)
-    return f"📿 You inscribe a death prophecy upon @{target_username}....If true, you’ll be rewarded."
+    chat_id = db.get_chat_id_by_user(user_id)
+    prediction = db.get_prediction(chat_id)
+
+    if not prediction:
+        db.set_death_prediction(chat_id, target_id)
+        return f"📿 You inscribe a death prophecy upon @{target_username}....If true, you’ll be rewarded."
+
+    if prediction == target_id:
+        # Prediction correct — dramatic reveal
+        asyncio.create_task(dagger_prophet_success_animation(chat_id, username, db.get_bot()))
+        db.mark_player_for_death(target_id)
+        db.clear_prediction(chat_id)
+        return f"💀 Your prophecy is fulfilled. @{username} shall perish."
+    else:
+        # Prediction failed
+        dagger_prophet_fail_message(chat_id, db.get_bot())
+        db.clear_prediction(chat_id)
+        return "❌ Your prophecy failed. The blade hungers still."
 
 def use_kiss_of_eclipse(user_id, target_id, username):
     db.mark_nsfl(user_id)
