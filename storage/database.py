@@ -632,3 +632,29 @@ def get_round(chat_id):
     if chat_id in games:
         return games[chat_id].get("round", 1)
     return 1
+# ✅ DOUBLE vote power (Shadow Fang)
+def double_vote_power(user_id):
+    games['double_votes'] = games.get('double_votes', {})
+    games['double_votes'][user_id] = True
+
+def is_double_vote(user_id):
+    return games.get('double_votes', {}).get(user_id, False)
+
+# ✅ GET RECENT TARGET history (Echo Seer)
+def get_recent_target_history(user_id):
+    return games.get('target_history', {}).get(user_id, [])
+
+# ✅ DEATH prediction (Dagger Prophet)
+def set_death_prediction(user_id, predicted_target):
+    games['prophecies'] = games.get('prophecies', {})
+    games['prophecies'][user_id] = predicted_target
+
+def check_prophecy_success(user_id, actual_death):
+    return games.get('prophecies', {}).get(user_id) == actual_death
+
+# ✅ RELIC extraction (Blood Alchemist)
+def extract_relic_from_recent_death():
+    deaths = games.get('death_log', [])
+    if deaths:
+        return random.choice(["blood_orb", "memory_fragment"])
+    return None
