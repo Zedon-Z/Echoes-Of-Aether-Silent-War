@@ -249,7 +249,18 @@ def use_dagger_prophet(user_id, target_id, username):
         return "❌ Your prophecy failed. The blade hungers still."
 
 def use_kiss_of_eclipse(user_id, target_id, username):
-    db.mark_nsfl(user_id)
-    db.disable_player_next_vote(target_id)
-    return f"💋 You seduced @{username}. They are silenced for one round."
+    chat_id = db.get_chat_id_by_user(user_id)
     
+    # Check if already kissed someone before
+    previous = db.get_kissed_target(chat_id, user_id)
+    if previous and previous != target_id:
+        db.kill_player(chat_id, previous)
+        db.remove_couple(chat_id, user_id)
+    
+    # Mark the new couple
+    db.set_couple(chat_id, user_id, target_id)
+    
+    # Silence the target
+    db.silence_player(chat_id, target_id)
+    
+    return f"💋 @{username} has been kissed under the *Eclipse*. A dark bond is formed..."
