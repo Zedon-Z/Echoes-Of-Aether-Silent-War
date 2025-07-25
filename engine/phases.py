@@ -222,7 +222,23 @@ def tally_votes(chat_id, context: CallbackContext):
     if not tally:
         context.bot.send_message(chat_id, "🛡️ All votes were blocked or invalid.")
         return
+    # Check if Core Reverser power is active and not used
+    core_reverser = db.get_core_reverser(chat_id)
+    if core_reverser and not db.has_used_core_shuffle(core_reverser):
+        from engine.animation import core_shuffle_animation
+        core_shuffle_animation(context.bot, chat_id)
 
+        # Shuffle votes
+        shuffled_votes = list(tally.elements())
+        random.shuffle(shuffled_votes)
+        tally = Counter(shuffled_votes)
+    
+        # Mark as used
+        db.mark_core_shuffle_used(core_reverser)
+    
+        # Optional: Alert the group
+        context.bot.send_message(chat_id, f"🌀 *The Core twists... fate has been shuffled by @{db.get_username(core_reverser)}!*", parse_mode='Markdown')
+    
     target_id, count = tally.most_common(1)[0]
     target_username = db.get_username(target_id)
 
