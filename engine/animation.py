@@ -137,3 +137,14 @@ def cancel_game_animation(bot, chat_id):
 
     except Exception as e:
         print(f"[WARN] Cancel animation failed: {e}")
+####
+def core_reverser_animation(bot, chat_id):
+    frames = [
+        "🔄 *The Core begins to spin...*",
+        "🌀 *Reality twists. Votes scatter across the veil...*",
+        "🎲 *Fate has chosen anew.*"
+    ]
+    msg = bot.send_message(chat_id, text=frames[0], parse_mode="Markdown")
+    for frame in frames[1:]:
+        time.sleep(1.5)
+        bot.edit_message_text(chat_id=chat_id, message_id=msg.message_id, text=frame, parse_mode="Markdown")
