@@ -703,3 +703,9 @@ def is_silenced(chat_id, player_id):
 def clear_silences(chat_id):
     for pid in db.get_alive_players(chat_id):
         db.games[chat_id]["players"][pid].pop("silenced", None)
+######
+def has_used_vote_immunity(pid):
+    return players[pid].get("ascended_immunity_used", False)
+
+def consume_vote_immunity(pid):
+    players[pid]["ascended_immunity_used"] = True
