@@ -250,6 +250,13 @@ def tally_votes(chat_id, context: CallbackContext):
         )
         db.clear_votes(chat_id)
         db.auto_complete_tasks()
+        # ✨ Check Ascended vote immunity
+    elif db.get_user_role(target_id) == "Ascended" and not db.has_used_vote_immunity(target_id):
+        db.consume_vote_immunity(target_id)
+        context.bot.send_message(chat_id, f"✨ @{target_username} resisted elimination with divine immunity!")
+        db.clear_votes(chat_id)
+        db.auto_complete_tasks()
+    return
     else:
         db.kill_player(chat_id, target_id)
         context.bot.send_message(
