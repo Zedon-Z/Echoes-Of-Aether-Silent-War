@@ -674,3 +674,32 @@ def shuffle_votes(chat_id):
     votes = list(games[chat_id]["votes"].items())
     random.shuffle(votes)
     games[chat_id]["votes"] = dict(votes)
+    
+# -- Kissed Pair Tracking --
+def set_couple(chat_id, kisser_id, target_id):
+    db.games[chat_id].setdefault("couples", {})[kisser_id] = target_id
+    db.games[chat_id]["players"][kisser_id]["couple"] = target_id
+    db.games[chat_id]["players"][target_id]["couple"] = kisser_id
+
+def get_kissed_target(chat_id, kisser_id):
+    return db.games[chat_id].get("couples", {}).get(kisser_id)
+
+def remove_couple(chat_id, kisser_id):
+    ex = db.games[chat_id].get("couples", {}).pop(kisser_id, None)
+    if ex:
+        db.games[chat_id]["players"][kisser_id].pop("couple", None)
+        db.games[chat_id]["players"][ex].pop("couple", None)
+
+def are_couple(pid1, pid2, chat_id):
+    return db.games[chat_id]["players"].get(pid1, {}).get("couple") == pid2
+
+# -- Silence a player for 1 round --
+def silence_player(chat_id, player_id):
+    db.games[chat_id]["players"][player_id]["silenced"] = True
+
+def is_silenced(chat_id, player_id):
+    return db.games[chat_id]["players"].get(player_id, {}).get("silenced", False)
+
+def clear_silences(chat_id):
+    for pid in db.get_alive_players(chat_id):
+        db.games[chat_id]["players"][pid].pop("silenced", None)
