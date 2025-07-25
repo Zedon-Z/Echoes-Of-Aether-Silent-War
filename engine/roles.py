@@ -3,16 +3,30 @@ from engine import dagger_prophet_success_animation
 from engine import dagger_prophet_fail_message
 from storage import database as db
 
+# === Adaptive Role Pool Assignment ===
 def assign_roles(chat_id, player_ids, context):
-    role_pool = [
-    "Silent Fang", "Shadow Fang", "Shadeblade",  # Whispered Blades (Assassin faction)
-    "Oracle", "Echo Seer", "Dagger Prophet", "Lumen Priest",  # Seers (Vision faction)
-    "Tinkerer", "Saboteur", "Puppetmaster", "Trickster",  # Nexus (Disruption faction)
-    "Core Reverser", "Blood Alchemist", "Echo Hunter", "Kiss Of Eclipse", "Ascended", "Archivist", "Goat"  # Common Enemies (Solo/Neutral)
-    ]
-    random.shuffle(role_pool)
     assigned = {}
+    num_players = len(player_ids)
 
+    # Tiered role pools depending on player count
+    core_roles = [
+        "Shadeblade", "Oracle", "Lumen Priest", "Tinkerer", "Silent Fang", "Echo Seer", "Kiss Of Eclipse"
+    ]
+    mid_roles = [
+        "Saboteur", "Puppetmaster", "Trickster", "Shadow Fang", "Dagger Prophet", "Goat"
+    ]
+    advanced_roles = [
+        "Core Reverser", "Echo Hunter", "Blood Alchemist", "Ascended", "Archivist"
+    ]
+
+    full_pool = core_roles[:]
+    if num_players >= 6:
+        full_pool += mid_roles
+    if num_players >= 9:
+        full_pool += advanced_roles
+
+    random.shuffle(full_pool)
+    
     for player_id in player_ids:
         role = role_pool.pop() if role_pool else "Goat"
         db.assign_role(chat_id, player_id, role)
