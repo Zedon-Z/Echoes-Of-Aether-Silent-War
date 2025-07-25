@@ -5,9 +5,10 @@ from storage import database as db
 
 def assign_roles(chat_id, player_ids, context):
     role_pool = [
-        "Shadeblade", "Oracle", "Tinkerer", "Lumen Priest",
-        "Ascended", "Saboteur", "Kiss Of Eclipse","Succubus",
-        "Archivist", "Puppetmaster", "Trickster", "Goat"
+    "Silent Fang", "Shadow Fang", "Shadeblade",  # Whispered Blades (Assassin faction)
+    "Oracle", "Echo Seer", "Dagger Prophet", "Lumen Priest",  # Seers (Vision faction)
+    "Tinkerer", "Saboteur", "Puppetmaster", "Trickster",  # Nexus (Disruption faction)
+    "Core Reverser", "Blood Alchemist", "Echo Hunter", "Kiss Of Eclipse", "Ascended", "Archivist", "Goat"  # Common Enemies (Solo/Neutral)
     ]
     random.shuffle(role_pool)
     assigned = {}
@@ -19,22 +20,31 @@ def assign_roles(chat_id, player_ids, context):
         db.games[chat_id]["players"][player_id]["faction"] = faction_map.get(role, "Neutral")
         
         faction_map = {
+             # 🗡 Whispered Blades – Assassin Faction 
+            "Silent Fang": "Whispered Blades",
+            "Shadow Fang": "Whispered Blades",
+            "Shadeblade": "Whispered Blades",
+
+            # 🌟 Luminae – Mystics & Visionaries (formerly "Seers")
             "Oracle": "Luminae",
+            "Echo Seer": "Luminae",
+            "Dagger Prophet": "Luminae",
             "Lumen Priest": "Luminae",
-            
-            "Shadeblade": "Veilborn",
-            "Succubus": "Veilborn",
-            
+
+            # 🔧 Nexus – Chaos & Control
+            "Tinkerer": "Nexus",
+            "Saboteur": "Nexus",
             "Puppetmaster": "Nexus",
             "Trickster": "Nexus",
-            "Saboteur": "Nexus",
-            "Ascended": "Rogue",
-            "Kiss Of Eclipse": "Rogue",
-            
-    
-            "Tinkerer": "Rogue",
-            "Archivist": "Rogue",
-            "Goat": "Goat"
+
+            # 🌀 Veilbound – Rogues, Cursed & Fringe (Alt name for Common Enemies)
+            "Core Reverser": "Veilbound (Common Enemies)",
+            "Blood Alchemist": "Veilbound (Common Enemies)",
+            "Echo Hunter": "Veilbound (Common Enemies)",
+            "Kiss Of Eclipse": "Veilbound (Common Enemies)",
+            "Ascended": "Veilbound (Common Enemies)",
+            "Archivist": "Veilbound (Common Enemies)",
+            "Goat": "Veilbound (Common Enemies)",
             }
 
         # ✅ Send role to player privately
@@ -58,7 +68,7 @@ def assign_roles(chat_id, player_ids, context):
             "Lumen Priest": "🛡️ Shield someone from elimination.",
             "Ascended": "✨ Become immune to 1 vote.",
             
-            "Archivist" : "📚 Reveal data from last death.",
+            "Archivist" : "📚 Reveal data from last death. Get 3 relic to win and to see behind death",
             "Goat": "🐐 No power, only vibes."
             }
         description = role_descriptions.get(role, "No description available.")
@@ -99,7 +109,7 @@ def use_power(user_id, target_username):
         "Echo Seer": use_echo_seer,
         "Echo Hunter": use_echo_hunter,
         "Dagger Prophet": use_dagger_prophet,
-        
+        "Core Reverser": use_core_reverser,
         "Lumen Priest": use_lumen_priest,
         
         "Saboteur": use_saboteur,
@@ -118,7 +128,16 @@ def use_power(user_id, target_username):
 
 
 # --- Individual Role Powers ---
+def use_core_reverser(user_id, target_id, username):
+    chat_id = db.get_chat_id_by_user(user_id)
 
+    if db.has_used_core_reverser(user_id):
+        return "⚠️ You have already twisted the Core once. Its gears won’t bend again."
+
+    db.mark_core_reverser_used(user_id)
+    db.shuffle_votes(chat_id)
+    return "🔁 *The Core has been reversed!* The outcome may shift... fate is rewritten."
+    
 def use_shadeblade(user_id, target_id, username):
     if db.is_player_protected(target_id):
         return "⚠️ Target was protected!"
