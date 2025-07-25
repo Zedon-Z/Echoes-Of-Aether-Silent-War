@@ -8,6 +8,7 @@ usernames = {}
 task_progress = {}
 alliances = {}
 whispers = {}
+import random
 # --- Alliance Vote Monitoring ---
 def notify_allies_vote(chat_id, voter_id, target_id, context):
     for pair in alliances.get(chat_id, []):
@@ -658,3 +659,18 @@ def extract_relic_from_recent_death():
     if deaths:
         return random.choice(["blood_orb", "memory_fragment"])
     return None
+# Track whether the Core Reverser has used their power
+core_reverser_used = {}
+
+def mark_core_reverser_used(user_id):
+    core_reverser_used[user_id] = True
+
+def has_used_core_reverser(user_id):
+    return core_reverser_used.get(user_id, False)
+
+def shuffle_votes(chat_id):
+    if "votes" not in games[chat_id]:
+        return
+    votes = list(games[chat_id]["votes"].items())
+    random.shuffle(votes)
+    games[chat_id]["votes"] = dict(votes)
