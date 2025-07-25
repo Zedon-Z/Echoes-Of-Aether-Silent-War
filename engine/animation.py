@@ -148,3 +148,32 @@ def core_reverser_animation(bot, chat_id):
     for frame in frames[1:]:
         time.sleep(1.5)
         bot.edit_message_text(chat_id=chat_id, message_id=msg.message_id, text=frame, parse_mode="Markdown")
+######        
+def eclipse_breakup_animation(bot, chat_id, ex_username):
+    frames = [
+        f"💔 *The shadows recoil...*",
+        f"⚔️ *The bond with @{ex_username} is shattered...*",
+        f"☠️ *Their heart stops — sacrificed to the eclipse.*"
+    ]
+    msg = bot.send_message(chat_id, frames[0], parse_mode="Markdown")
+    for frame in frames[1:]:
+        time.sleep(1.5)
+        bot.edit_message_text(chat_id=chat_id, message_id=msg.message_id, text=frame, parse_mode="Markdown")
+
+def eclipse_couple_formed(bot, chat_id, kisser_username, kissed_username):
+    text = (
+        f"🌘 *A kiss under the eclipse seals fate...*\n\n"
+        f"💞 @{kisser_username} and @{kissed_username} are now bound as *Lovers of the Eclipse*."
+    )
+    bot.send_message(chat_id, text, parse_mode="Markdown")
+
+def eclipse_win_animation(bot, chat_id, kisser_username, kissed_username):
+    frames = [
+        "🌑 *The world trembles...*",
+        f"💫 *But two hearts shine in the darkness...*",
+        f"💞 *@{kisser_username} and @{kissed_username} triumph as the *Lovers of the Eclipse!*"
+    ]
+    msg = bot.send_message(chat_id, frames[0], parse_mode="Markdown")
+    for frame in frames[1:]:
+        time.sleep(1.5)
+        bot.edit_message_text(chat_id=chat_id, message_id=msg.message_id, text=frame, parse_mode="Markdown")
