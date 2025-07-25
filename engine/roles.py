@@ -9,23 +9,6 @@ def assign_roles(chat_id, player_ids, context):
         "Ascended", "Saboteur", "Kiss Of Eclipse","Succubus",
         "Archivist", "Puppetmaster", "Trickster", "Goat"
     ]
-    faction_map = {
-    "Shadeblade": "Shadowborn",
-    "Oracle": "Seers",
-    "Succubus": "Shadowborn",
-    "Tinkerer": "Nexus",
-    "Whispersmith": "Neutral",
-    "Blight": "Shadowborn",
-    "Lumen Priest": "Seers",
-    "Light Herald": "Seers",
-    "Saboteur": "Nexus",
-    "Courtesan": "Neutral",
-    "Puppetmaster": "Neutral",
-    "Trickster": "Neutral",
-    "Ascended": "Neutral",
-    "Archivist": "Neutral",
-    "Goat": "Goat"
-    }
     random.shuffle(role_pool)
     assigned = {}
 
@@ -48,6 +31,7 @@ def assign_roles(chat_id, player_ids, context):
             "Ascended": "Rogue",
             "Kiss Of Eclipse": "Rogue",
             
+    
             "Tinkerer": "Rogue",
             "Archivist": "Rogue",
             "Goat": "Goat"
@@ -56,16 +40,24 @@ def assign_roles(chat_id, player_ids, context):
         # ✅ Send role to player privately
         role_descriptions = {
             "Oracle": "🔮 See the role of a player.",
-            "Succubus": "💘 Charm a player — they cannot vote you.",
+            "Core Reverser": "🌀🎭 Once per game, shuffle all final votes before execution.",
             "Shadeblade": "🗡️ Mark one player for elimination.",
             "Puppetmaster": "🧵 Control someone’s vote.",
             "Trickster": "🎭 Swap your vote with another.",
             "Saboteur": "🔧 Disable an item from a player.",
             
+            "Silent Fang": "🗡️👁️ Assassinate a player. See if they’re protected before striking.",
+            "Shadow Fang": "🫥🗳️ Knows the Silent Fang. Has double vote power.",
+            "Echo Seer": "🌬️🌀 Hears whispers and secret exchanges.",
+            "Dagger Prophet": "🩸🔮 Predicts a player's death. Gains power if correct.",
+            "Blood Alchemist": "🧪💀 Absorb the last dead role’s power as a relic.",
+            "Echo Hunter": "🎯🐺 Gets an extra kill when fewer than 4 players remain.",
+            "Kiss Of Eclipse": "💋🌒 Kiss a player each night they get silenced for 1 round. Win by kissing all factions.",
+        
             "Tinkerer": "🔨 Craft a random item.",
             "Lumen Priest": "🛡️ Shield someone from elimination.",
             "Ascended": "✨ Become immune to 1 vote.",
-            "Kiss Of Eclipse": "💋🌒 Silence someone for 1 round.",
+            
             "Archivist" : "📚 Reveal data from last death.",
             "Goat": "🐐 No power, only vibes."
             }
@@ -101,7 +93,12 @@ def use_power(user_id, target_username):
         "Oracle": use_oracle,
         "Archivist": use_archivist,
         "Tinkerer": use_tinkerer,
-        
+        "Silent Fang": use_silent_fang,
+        "Shadow Fang": use_shadow_fang,
+        "Blood Alchemist": use_blood_alchemist,
+        "Echo Seer": use_echo_seer,
+        "Echo Hunter": use_echo_hunter,
+        "Dagger Prophet": use_dagger_prophet,
         
         "Lumen Priest": use_lumen_priest,
         
