@@ -10,33 +10,62 @@ def check_for_winner(chat_id):
     roles = {pid: db.get_user_role(pid) for pid in players}
     unique_factions = set(factions)
 
-    # 🟣 --- 1. GOAT WIN ---
+    # 🐐 1. GOAT WIN
     for pid in players:
         if roles[pid] == "Goat" and len(players) <= 3:
-            return f"🐐 @{db.get_username(pid)} (Goat) wins by surviving until the Final 3!"
+            return f"🐐 @{db.get_username(pid)} (Goat) wins by surviving to the Final 3!"
 
-    # 🟡 --- 2. ARCHIVIST RELIC WIN ---
+    # 📚 2. ARCHIVIST RELIC WIN
     for pid in players:
         if roles[pid] == "Archivist" and db.get_relic_count(pid) >= 3:
             return f"📚 @{db.get_username(pid)} (Archivist) wins by collecting 3 relics!"
 
-    # 🟠 --- 3. PUPPETMASTER THREAD WIN ---
+    # 🧵 3. PUPPETMASTER THREAD WIN
     for pid in players:
         if roles[pid] == "Puppetmaster" and db.used_thread(pid):
-            return f"🧵 @{db.get_username(pid)} (Puppetmaster) wins via total mind control!"
+            return f"🧵 @{db.get_username(pid)} (Puppetmaster) wins by total mind control!"
 
-    # 🟢 --- 4. NEXUS WIN CONDITION ---
+    # 🩸 4. DAGGER PROPHET DEATH WIN
     for pid in players:
-        if roles[pid] == "Ascended" and db.check_nexus_control(pid):
-            db.set_nexus_winner(pid)
-            return f"⚙️ Nexus Manipulation! @{db.get_username(pid)} (Ascended) triggers Core Hijack Victory!"
+        if roles[pid] == "Dagger Prophet" and db.correct_death_prediction(pid):
+            return f"🔮 @{db.get_username(pid)} (Dagger Prophet) wins by fulfilling a bloody prophecy!"
 
-    # 🔴 --- 5. FACTIONAL WIN ---
+    # 🧪 5. BLOOD ALCHEMIST RELIC ABSORB WIN
+    for pid in players:
+        if roles[pid] == "Blood Alchemist" and db.has_absorbed_relic(pid):
+            return f"🧪 @{db.get_username(pid)} (Blood Alchemist) wins by consuming the essence of the fallen."
+
+    # 💋 6. KISS OF ECLIPSE WIN
+    for pid in players:
+        if roles[pid] == "Kiss Of Eclipse" and db.kissed_all_factions(pid):
+            return f"💋 @{db.get_username(pid)} (Kiss of Eclipse) wins by silencing all of Aether... romantically."
+
+    # 🎯 7. ECHO HUNTER LONE WOLF WIN (3-player trigger)
+    for pid in players:
+        if roles[pid] == "Echo Hunter" and len(players) == 3:
+            return f"🎯 @{db.get_username(pid)} (Echo Hunter) claims the hunt — victory under 3 survivors!"
+            
+    # ❤️ 8. COUPLE WIN ---
+    kissers = db.get_all_kiss_of_eclipse()
+    for kisser_id in kissers:
+        partner_id = db.get_current_kissed(kisser_id)
+        if partner_id in players:
+            if kisser_id in players:
+                return f"💞 True Eclipse! @{db.get_username(kisser_id)} and @{db.get_username(partner_id)} win as a bound pair!"
+            else:
+                return f"💋 @{db.get_username(partner_id)} survives. Love transcends fate — Eclipse wins!"
+                
+    # ⚙️ 9. CORE REVERSER VICTORY (if a twist round vote shuffle leads to unexpected death and condition met)
+    for pid in players:
+        if roles[pid] == "Core Reverser" and db.triggered_core_reversal(pid):
+            return f"🌀 @{db.get_username(pid)} (Core Reverser) destabilized fate itself. Victory from the shadows!"
+     
+    # 🟪 10. FACTION WIN (Whispered Blades, Luminae, Nexus, Rogue, etc.)
     if len(unique_factions) == 1:
         faction = unique_factions.pop()
-        return f"🏆 {faction} claims the world of Aether. All others perished!"
+        return f"🏆 {faction} dominates Aether. All others fell before their will."
 
-    # 🟤 --- 6. FINAL ECHO ENDGAME ---
+    # 🌌 11. FINAL ECHO ENDGAME
     if db.is_final_echo_active(chat_id):
         dominant_echo = db.get_dominant_echo_vote(chat_id)
         if dominant_echo == "Destroy":
@@ -53,5 +82,5 @@ def check_for_winner(chat_id):
                 return f"🚀 Escapees: {names} survived the collapse!"
             return "🚀 A few managed to escape. Aether's future is... unknown."
 
-    # ❌ --- 7. NO WINNER YET ---
+    # ❌ 12. NO WINNER YET
     return None
