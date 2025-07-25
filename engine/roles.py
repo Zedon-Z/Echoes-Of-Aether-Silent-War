@@ -250,17 +250,22 @@ def use_dagger_prophet(user_id, target_id, username):
 
 def use_kiss_of_eclipse(user_id, target_id, username):
     chat_id = db.get_chat_id_by_user(user_id)
-    
-    # Check if already kissed someone before
+    bot = db.get_bot()
+
+    # Break old bond and kill ex if exists
     previous = db.get_kissed_target(chat_id, user_id)
     if previous and previous != target_id:
+        ex_username = db.get_username(previous)
         db.kill_player(chat_id, previous)
         db.remove_couple(chat_id, user_id)
-    
-    # Mark the new couple
+        from engine.animation import eclipse_breakup_animation
+        eclipse_breakup_animation(bot, chat_id, ex_username)
+
+    # Form new bond
     db.set_couple(chat_id, user_id, target_id)
-    
-    # Silence the target
     db.silence_player(chat_id, target_id)
-    
-    return f"💋 @{username} has been kissed under the *Eclipse*. A dark bond is formed..."
+
+    from engine.animation import eclipse_couple_formed
+    eclipse_couple_formed(bot, chat_id, db.get_username(user_id), username)
+
+    return f"💋 @{username} has been kissed under the *Eclipse*. Their voice fades for a round..."
