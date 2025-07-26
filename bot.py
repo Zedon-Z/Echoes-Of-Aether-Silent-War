@@ -38,7 +38,6 @@ def run_bot():
         dp.add_handler(CommandHandler("flee", commands.flee))
         dp.add_handler(CommandHandler("cancelgame", commands.cancel_game))
         dp.add_handler(CommandHandler("nextphase", commands.next_phase))  #temp
-        dp.add_handler(CommandHandler("forcetally", commands.force_tally))
         dp.add_handler(CommandHandler("extendtime", commands.extend_time))
         dp.add_handler(CommandHandler("forcestart", commands.force_start))
         dp.add_handler(MessageHandler(Filters.text & Filters.group, game.handle_group_message))
