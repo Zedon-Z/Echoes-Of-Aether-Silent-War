@@ -256,7 +256,6 @@ def tally_votes(chat_id, context: CallbackContext):
         context.bot.send_message(chat_id, f"✨ @{target_username} resisted elimination with divine immunity!")
         db.clear_votes(chat_id)
         db.auto_complete_tasks()
-    return
     else:
         db.kill_player(chat_id, target_id)
         context.bot.send_message(
