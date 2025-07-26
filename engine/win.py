@@ -47,12 +47,12 @@ def check_for_winner(chat_id):
             
     # ❤️ 8. COUPLE WIN ---
     # 💖 Eclipse Couple Win
-couples = db.games[chat_id].get("couples", {})
-for kisser, kissed in couples.items():
-    if kisser in players and kissed in players:
-        from engine.animation import eclipse_win_animation
-        eclipse_win_animation(db.get_bot(), chat_id, db.get_username(kisser), db.get_username(kissed))
-        return f"💞 Lovers of the Eclipse ascend together!"
+    couples = db.games[chat_id].get("couples", {})
+    for kisser, kissed in couples.items():
+        if kisser in players and kissed in players:
+            from engine.animation import eclipse_win_animation
+            eclipse_win_animation(db.get_bot(), chat_id, db.get_username(kisser), db.get_username(kissed))
+            return f"💞 Lovers of the Eclipse ascend together!"
         
     # ⚙️ 9. CORE REVERSER VICTORY (if a twist round vote shuffle leads to unexpected death and condition met)
     for pid in players:
