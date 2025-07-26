@@ -1,6 +1,6 @@
 import random
-from animation import dagger_prophet_success_animation
-from animation import dagger_prophet_fail_message
+from engine.animation import dagger_prophet_success_animation
+from engine.animation import dagger_prophet_fail_message
 from storage import database as db
 
 # === Adaptive Role Pool Assignment ===
